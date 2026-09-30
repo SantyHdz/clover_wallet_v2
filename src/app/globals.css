@@ -1,26 +1,156 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-debt: var(--debt);
+  --color-loan: var(--loan);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Paleta Gris Carbón / Google Material Theme por Defecto */
+  --background: #121212;
+  --foreground: #f3f3f3;
+  --card: #1e1e1e;
+  --card-foreground: #f3f3f3;
+  --popover: #1e1e1e;
+  --popover-foreground: #f3f3f3;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;
+  --secondary-foreground: #f4f4f5;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #f4f4f5;
+  --destructive: #ef4444;
+  --border: #2e2e2e;
+  --input: #2e2e2e;
+  --ring: #10b981;
+  --radius: 0.625rem;
+
+  /* Semántica Financiera */
+  --income: #22c55e;
+  --expense: #ef4444;
+  --debt: #f97316;
+  --loan: #3b82f6;
+
+  /* Paleta de Gráficos Financieros */
+  --chart-1: #10b981;
+  --chart-2: #22c55e;
+  --chart-3: #3b82f6;
+  --chart-4: #f97316;
+  --chart-5: #ef4444;
+
+  /* Barra Lateral (Sidebar) */
+  --sidebar: #18181b;
+  --sidebar-foreground: #f3f3f3;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #27272a;
+  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-border: #2e2e2e;
+  --sidebar-ring: #10b981;
+}
+
+.dark {
+  --background: #121212;
+  --foreground: #f3f3f3;
+  --card: #1e1e1e;
+  --card-foreground: #f3f3f3;
+  --popover: #1e1e1e;
+  --popover-foreground: #f3f3f3;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;
+  --secondary-foreground: #f4f4f5;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #f4f4f5;
+  --destructive: #ef4444;
+  --border: #2e2e2e;
+  --input: #2e2e2e;
+  --ring: #10b981;
+
+  /* Semántica Financiera */
+  --income: #22c55e;
+  --expense: #ef4444;
+  --debt: #f97316;
+  --loan: #3b82f6;
+
+  /* Gráficos */
+  --chart-1: #10b981;
+  --chart-2: #22c55e;
+  --chart-3: #3b82f6;
+  --chart-4: #f97316;
+  --chart-5: #ef4444;
+
+  /* Barra Lateral */
+  --sidebar: #18181b;
+  --sidebar-foreground: #f3f3f3;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #27272a;
+  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-border: #2e2e2e;
+  --sidebar-ring: #10b981;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
 }
