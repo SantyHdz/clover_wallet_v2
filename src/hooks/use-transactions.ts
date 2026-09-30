@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { formatAmount } from '@/lib/utils';
 import transactionsService from '@/lib/transactions-service';
 import {
   CreateTransactionPayload,
@@ -46,7 +47,7 @@ export function useCreateTransaction() {
       queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
       const typeLabel = newTx.type === 'income' ? 'Ingreso' : 'Gasto';
-      toast.success(`${typeLabel} de $${Number(newTx.amount).toFixed(2)} registrado correctamente`);
+      toast.success(`${typeLabel} de $${formatAmount(newTx.amount)} registrado correctamente`);
     },
     onError: (error: any) => {
       const message =

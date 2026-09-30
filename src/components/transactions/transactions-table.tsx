@@ -13,7 +13,7 @@ import {
   Tag,
   Plus,
 } from 'lucide-react';
-import { Transaction } from '@/types';
+import { Transaction, Category } from '@/types';
 import {
   Table,
   TableBody,
@@ -33,10 +33,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CategoryIcon } from '@/lib/category-icons';
-import { cn } from '@/lib/utils';
+import { cn, formatAmount } from '@/lib/utils';
 
 interface TransactionsTableProps {
   transactions: Transaction[];
+  categories?: Category[];
   isLoading: boolean;
   onEdit: (tx: Transaction) => void;
   onDelete: (tx: Transaction) => void;
@@ -46,6 +47,7 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({
   transactions,
+  categories = [],
   isLoading,
   onEdit,
   onDelete,
@@ -135,7 +137,9 @@ export function TransactionsTable({
           <TableBody>
             {transactions.map((tx) => {
               const isIncome = tx.type === 'income';
-              const category = tx.category;
+              // Find category either directly or via categories list fallback
+              const category =
+                tx.category || categories.find((c) => c.id === tx.category_id);
               const categoryColor = category?.color || '#71717A';
 
               return (
@@ -154,14 +158,14 @@ export function TransactionsTable({
                   {/* 2. Categoría */}
                   <TableCell className="text-xs">
                     {category ? (
-                      <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg border border-[#2E2E2E] bg-[#121212]">
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg border border-[#2E2E2E] bg-[#121212]">
                         <div
                           className="flex h-4 w-4 items-center justify-center rounded text-white text-[10px]"
                           style={{ backgroundColor: categoryColor }}
                         >
                           <CategoryIcon iconName={category.icon} className="h-2.5 w-2.5" />
                         </div>
-                        <span className="text-white font-medium truncate max-w-[120px]">
+                        <span className="text-white font-medium truncate max-w-[130px]">
                           {category.name}
                         </span>
                       </div>
@@ -231,7 +235,7 @@ export function TransactionsTable({
                         isIncome ? 'text-[#22C55E]' : 'text-[#EF4444]'
                       )}
                     >
-                      {isIncome ? '+' : '-'}{currencySymbol}{Number(tx.amount).toFixed(2)}
+                      {isIncome ? '+' : '-'}{currencySymbol}{formatAmount(tx.amount)}
                     </span>
                   </TableCell>
 

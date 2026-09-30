@@ -239,6 +239,7 @@ export default function TransactionsPage() {
       ───────────────────────────────────────────────────────────── */}
       <TransactionsTable
         transactions={filteredTransactions}
+        categories={categories}
         isLoading={isLoading}
         onEdit={handleOpenEdit}
         onDelete={handleOpenDelete}

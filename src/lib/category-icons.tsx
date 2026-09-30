@@ -214,15 +214,17 @@ export const CATEGORY_COLORS = [
 export interface CategoryIconProps {
   iconName?: string | null;
   className?: string;
+  color?: string;
+  style?: React.CSSProperties;
 }
 
-export function CategoryIcon({ iconName, className }: CategoryIconProps) {
+export function CategoryIcon({ iconName, className, color, style }: CategoryIconProps) {
   if (!iconName) {
-    return <Tag className={className} />;
+    return <Tag className={className} style={{ color, ...style }} />;
   }
 
   const normalized = iconName.toLowerCase().replace(/[^a-z0-9]/g, '');
   const IconComponent = CATEGORY_ICONS_MAP[normalized] || Tag;
 
-  return <IconComponent className={className} />;
+  return <IconComponent className={className} style={{ color, ...style }} />;
 }

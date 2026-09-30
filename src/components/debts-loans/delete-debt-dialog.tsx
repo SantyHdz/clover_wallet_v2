@@ -11,35 +11,36 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Transaction } from '@/types';
-import { useDeleteTransaction } from '@/hooks/use-transactions';
-import { formatAmount } from '@/lib/utils';
+import { Debt } from '@/types';
+import { useDeleteDebt } from '@/hooks/use-debts';
+import { useAuth } from '@/contexts/auth-context';
 
-interface DeleteTransactionDialogProps {
-  transaction: Transaction | null;
+interface DeleteDebtDialogProps {
+  debt: Debt | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function DeleteTransactionDialog({
-  transaction,
+export function DeleteDebtDialog({
+  debt,
   open,
   onOpenChange,
-}: DeleteTransactionDialogProps) {
-  const deleteMutation = useDeleteTransaction();
+}: DeleteDebtDialogProps) {
+  const { user } = useAuth();
+  const deleteMutation = useDeleteDebt();
 
-  if (!transaction) return null;
+  if (!debt) return null;
+
+  const currencySymbol = user?.currency === 'COP' ? 'COL$' : user?.currency === 'EUR' ? '€' : '$';
 
   const handleDelete = async () => {
     try {
-      await deleteMutation.mutateAsync(transaction.id);
+      await deleteMutation.mutateAsync(debt.id);
       onOpenChange(false);
     } catch {
-      // Handled in hook toast
+      // Manejado en hook con toast.error
     }
   };
-
-  const isIncome = transaction.type === 'income';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,14 +50,15 @@ export function DeleteTransactionDialog({
             <AlertTriangle className="h-5 w-5" />
           </div>
           <DialogTitle className="text-base font-bold text-white">
-            ¿Eliminar esta transacción?
+            ¿Eliminar esta deuda?
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-            Se eliminará el registro de{' '}
-            <strong className={isIncome ? 'text-[#22C55E]' : 'text-[#EF4444]'}>
-              {isIncome ? '+' : '-'}${formatAmount(transaction.amount)}
+            Se eliminará permanentemente la obligación con{' '}
+            <strong className="text-white">{debt.creditor_name}</strong> por un monto de{' '}
+            <strong className="text-[#F97316]">
+              {currencySymbol}{Number(debt.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </strong>{' '}
-            {transaction.description ? `("${transaction.description}")` : ''} del historial de movimientos y se actualizará tu balance global.
+            junto con todos sus abonos registrados. Esta acción no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
 
@@ -85,7 +87,7 @@ export function DeleteTransactionDialog({
             ) : (
               <>
                 <Trash2 className="h-3.5 w-3.5" />
-                <span>Eliminar Movimiento</span>
+                <span>Eliminar Deuda</span>
               </>
             )}
           </Button>

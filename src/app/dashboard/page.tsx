@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -16,8 +16,9 @@ import {
   ArrowDownRight,
   ShieldCheck,
   Zap,
-  DollarSign,
   PieChart as PieChartIcon,
+  Tag,
+  Repeat,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,16 +41,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
+import { useReportsSummary } from '@/hooks/use-reports';
+import { useTransactions } from '@/hooks/use-transactions';
+import { useCategories } from '@/hooks/use-categories';
+import { CategoryIcon } from '@/lib/category-icons';
+import { cn, formatAmount } from '@/lib/utils';
 
 export default function DashboardOverviewPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const { data: summary, isLoading: isLoadingSummary } = useReportsSummary();
+  const { data: transactions = [], isLoading: isLoadingTx } = useTransactions();
+  const { data: categories = [] } = useCategories();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -60,10 +64,44 @@ export default function DashboardOverviewPage() {
 
   const currencySymbol = user?.currency === 'EUR' ? '€' : '$';
 
+  // Metrics from real backend summary
+  const totalIncome = Number(summary?.total_income || 0);
+  const totalExpense = Number(summary?.total_expense || 0);
+  const balance = Number(summary?.balance || 0);
+  const totalDebt = Number(summary?.total_debt || 0);
+  const totalDebtPaid = Number(summary?.total_debt_paid || 0);
+  const totalDebtPending = Number(summary?.total_debt_pending || 0);
+  const totalLoan = Number(summary?.total_loan || 0);
+  const totalLoanRecovered = Number(summary?.total_loan_recovered || 0);
+  const totalLoanPending = Number(summary?.total_loan_pending || 0);
+
+  // Percentages
+  const debtProgress =
+    totalDebt > 0 ? Math.min(100, Math.round((totalDebtPaid / totalDebt) * 100)) : 0;
+  const loanProgress =
+    totalLoan > 0 ? Math.min(100, Math.round((totalLoanRecovered / totalLoan) * 100)) : 0;
+  const expenseRatio =
+    totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : 0;
+
+  const recentTransactions = transactions.slice(0, 5);
+
+  const formatDate = (dateString: string) => {
+    try {
+      const [year, month, day] = dateString.split('-');
+      const date = new Date(Number(year), Number(month) - 1, Number(day));
+      return new Intl.DateTimeFormat('es-ES', {
+        day: '2-digit',
+        month: 'short',
+      }).format(date);
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* ─────────────────────────────────────────────────────────────
-          1. WELCOME HERO CARD CON SHADCN ATOMS
+          1. WELCOME HERO CARD
       ───────────────────────────────────────────────────────────── */}
       <Card className="border-[#2E2E2E] bg-gradient-to-r from-[#1E1E1E] via-[#161616] to-[#1E1E1E] shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 h-48 w-48 rounded-full bg-[#10B981]/10 blur-3xl pointer-events-none" />
@@ -72,10 +110,10 @@ export default function DashboardOverviewPage() {
             <div className="space-y-1.5">
               <div className="flex items-center gap-2.5">
                 <Badge variant="outline" className="border-[#10B981]/30 bg-[#10B981]/10 text-[#10B981] px-2.5 py-0.5 text-xs font-semibold">
-                  🍀 Panel Financiero
+                  🍀 Panel Financiero en Vivo
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  Moneda Activa: <strong className="text-white">{user?.currency?.toUpperCase() || 'USD'}</strong>
+                  Moneda: <strong className="text-white">{user?.currency?.toUpperCase() || 'USD'}</strong>
                 </span>
               </div>
               <CardTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
@@ -113,7 +151,7 @@ export default function DashboardOverviewPage() {
       </Card>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. 4 FINANCIAL KPI CARDS WITH SEMANTIC SHADCN BADGES
+          2. 4 FINANCIAL KPI CARDS (DATOS REALES)
       ───────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* KPI 1: Ingresos */}
@@ -127,17 +165,21 @@ export default function DashboardOverviewPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white">
-              {currencySymbol}0.00
-            </div>
+            {isLoadingSummary ? (
+              <Skeleton className="h-8 w-32 bg-[#27272A]" />
+            ) : (
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#22C55E]">
+                +{currencySymbol}{formatAmount(totalIncome)}
+              </div>
+            )}
             <div className="flex items-center gap-1.5 text-xs text-[#22C55E]">
               <ArrowUpRight className="h-3.5 w-3.5" />
-              <span>Flujo Positivo</span>
+              <span>Entradas consolidadas</span>
             </div>
           </CardContent>
           <CardFooter className="pt-2 border-t border-[#2E2E2E]/60 text-[11px] text-muted-foreground flex justify-between">
-            <span>Mes actual</span>
-            <span className="text-[#22C55E] font-medium">+0.0%</span>
+            <span>Histórico acumulado</span>
+            <span className="text-[#22C55E] font-medium">Activo</span>
           </CardFooter>
         </Card>
 
@@ -152,17 +194,21 @@ export default function DashboardOverviewPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white">
-              {currencySymbol}0.00
-            </div>
+            {isLoadingSummary ? (
+              <Skeleton className="h-8 w-32 bg-[#27272A]" />
+            ) : (
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#EF4444]">
+                -{currencySymbol}{formatAmount(totalExpense)}
+              </div>
+            )}
             <div className="flex items-center gap-1.5 text-xs text-[#EF4444]">
               <ArrowDownRight className="h-3.5 w-3.5" />
-              <span>Egresos Totales</span>
+              <span>Egresos devengados</span>
             </div>
           </CardContent>
           <CardFooter className="pt-2 border-t border-[#2E2E2E]/60 text-[11px] text-muted-foreground flex justify-between">
-            <span>Mes actual</span>
-            <span className="text-[#EF4444] font-medium">0 transacciones</span>
+            <span>Gasto vs Ingreso</span>
+            <span className="text-[#EF4444] font-medium">{expenseRatio}%</span>
           </CardFooter>
         </Card>
 
@@ -177,20 +223,24 @@ export default function DashboardOverviewPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white">
-              {currencySymbol}0.00
-            </div>
+            {isLoadingSummary ? (
+              <Skeleton className="h-8 w-32 bg-[#27272A]" />
+            ) : (
+              <div className="text-2xl sm:text-3xl font-extrabold text-white">
+                {currencySymbol}{formatAmount(totalDebtPending)}
+              </div>
+            )}
             <div>
               <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                <span>Amortizado</span>
-                <span className="text-white font-medium">0%</span>
+                <span>Amortizado: {currencySymbol}{formatAmount(totalDebtPaid)}</span>
+                <span className="text-white font-medium">{debtProgress}%</span>
               </div>
-              <Progress value={0} className="h-1.5 bg-[#2E2E2E]" />
+              <Progress value={debtProgress} className="h-1.5 bg-[#2E2E2E]" />
             </div>
           </CardContent>
           <CardFooter className="pt-2 border-t border-[#2E2E2E]/60 text-[11px] text-muted-foreground flex justify-between">
-            <span>Pasivos por saldar</span>
-            <span className="text-[#F97316] font-medium">Al día</span>
+            <span>Total: {currencySymbol}{formatAmount(totalDebt)}</span>
+            <span className="text-[#F97316] font-medium">{totalDebtPending > 0 ? 'Por liquidar' : 'Al día'}</span>
           </CardFooter>
         </Card>
 
@@ -205,26 +255,30 @@ export default function DashboardOverviewPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="text-2xl sm:text-3xl font-extrabold text-white">
-              {currencySymbol}0.00
-            </div>
+            {isLoadingSummary ? (
+              <Skeleton className="h-8 w-32 bg-[#27272A]" />
+            ) : (
+              <div className="text-2xl sm:text-3xl font-extrabold text-white">
+                {currencySymbol}{formatAmount(totalLoanPending)}
+              </div>
+            )}
             <div>
               <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                <span>Cobrado</span>
-                <span className="text-white font-medium">0%</span>
+                <span>Cobrado: {currencySymbol}{formatAmount(totalLoanRecovered)}</span>
+                <span className="text-white font-medium">{loanProgress}%</span>
               </div>
-              <Progress value={0} className="h-1.5 bg-[#2E2E2E]" />
+              <Progress value={loanProgress} className="h-1.5 bg-[#2E2E2E]" />
             </div>
           </CardContent>
           <CardFooter className="pt-2 border-t border-[#2E2E2E]/60 text-[11px] text-muted-foreground flex justify-between">
-            <span>Préstamos a terceros</span>
-            <span className="text-[#3B82F6] font-medium">0 cobros</span>
+            <span>Total: {currencySymbol}{formatAmount(totalLoan)}</span>
+            <span className="text-[#3B82F6] font-medium">{totalLoanPending > 0 ? 'En cobranza' : 'Completado'}</span>
           </CardFooter>
         </Card>
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          3. SHADCN TABS: RESUMEN / FLUJO / DEUDAS
+          3. TABS: RESUMEN / MOVIMIENTOS RECIENTES / SALUD
       ───────────────────────────────────────────────────────────── */}
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2E2E2E] pb-3">
@@ -239,7 +293,7 @@ export default function DashboardOverviewPage() {
               value="recent"
               className="rounded-lg text-xs data-[state=active]:bg-[#10B981] data-[state=active]:text-white font-medium"
             >
-              Movimientos Recientes
+              Movimientos Recientes ({transactions.length})
             </TabsTrigger>
             <TabsTrigger
               value="health"
@@ -258,7 +312,7 @@ export default function DashboardOverviewPage() {
         {/* Tab 1: Resumen General */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Net Balance Breakdown Card */}
+            {/* Net Balance Card */}
             <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-6 lg:col-span-2 shadow-lg flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -276,9 +330,18 @@ export default function DashboardOverviewPage() {
                 <div className="mt-4 rounded-2xl border border-[#2E2E2E] bg-[#121212] p-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                     <span className="text-xs text-muted-foreground font-medium">Disponible para ahorro/inversión</span>
-                    <div className="text-3xl sm:text-4xl font-black text-[#10B981] mt-1">
-                      {currencySymbol}0.00
-                    </div>
+                    {isLoadingSummary ? (
+                      <Skeleton className="h-10 w-44 bg-[#27272A] mt-1" />
+                    ) : (
+                      <div
+                        className={cn(
+                          'text-3xl sm:text-4xl font-black mt-1',
+                          balance >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'
+                        )}
+                      >
+                        {balance >= 0 ? '+' : ''}{currencySymbol}{formatAmount(balance)}
+                      </div>
+                    )}
                   </div>
                   <Link href="/dashboard/transactions">
                     <Button variant="outline" size="sm" className="border-[#2E2E2E] bg-[#1E1E1E] text-white hover:bg-[#27272A]">
@@ -290,12 +353,14 @@ export default function DashboardOverviewPage() {
 
               <div className="mt-6 pt-4 border-t border-[#2E2E2E] grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#121212] border border-[#2E2E2E]">
-                  <span className="text-muted-foreground">Gastos vs Ingresos</span>
-                  <span className="font-semibold text-white">0%</span>
+                  <span className="text-muted-foreground">Porcentaje Gastado</span>
+                  <span className="font-semibold text-white">{expenseRatio}%</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#121212] border border-[#2E2E2E]">
-                  <span className="text-muted-foreground">Compromiso Deudas</span>
-                  <span className="font-semibold text-[#F97316]">0%</span>
+                  <span className="text-muted-foreground">Deudas por liquidar</span>
+                  <span className="font-semibold text-[#F97316]">
+                    {currencySymbol}{formatAmount(totalDebtPending)}
+                  </span>
                 </div>
               </div>
             </Card>
@@ -321,7 +386,9 @@ export default function DashboardOverviewPage() {
                         <div className="text-xs font-semibold text-white group-hover:text-[#10B981] transition-colors">
                           Transacciones
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Categorizar y filtrar</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {transactions.length} movimientos
+                        </div>
                       </div>
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
@@ -357,7 +424,9 @@ export default function DashboardOverviewPage() {
                         <div className="text-xs font-semibold text-white group-hover:text-[#F97316] transition-colors">
                           Categorías
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Colores e íconos</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {categories.length} categorías
+                        </div>
                       </div>
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors" />
@@ -368,14 +437,14 @@ export default function DashboardOverviewPage() {
           </div>
         </TabsContent>
 
-        {/* Tab 2: Movimientos Recientes con Shadcn Table */}
+        {/* Tab 2: Movimientos Recientes */}
         <TabsContent value="recent">
           <Card className="border-[#2E2E2E] bg-[#1E1E1E] shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-base text-white">Últimas Transacciones Registradas</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground">
-                  Detalle cronológico de tus movimientos financieros
+                  Detalle cronológico de tus movimientos financieros más recientes
                 </CardDescription>
               </div>
               <Link href="/dashboard/transactions">
@@ -385,34 +454,97 @@ export default function DashboardOverviewPage() {
               </Link>
             </CardHeader>
             <CardContent>
-              <div className="rounded-xl border border-[#2E2E2E] overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-[#121212]">
-                    <TableRow className="border-[#2E2E2E] hover:bg-transparent">
-                      <TableHead className="text-xs text-muted-foreground">Tipo</TableHead>
-                      <TableHead className="text-xs text-muted-foreground">Descripción</TableHead>
-                      <TableHead className="text-xs text-muted-foreground">Categoría</TableHead>
-                      <TableHead className="text-xs text-muted-foreground">Fecha</TableHead>
-                      <TableHead className="text-xs text-muted-foreground text-right">Monto</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow className="border-[#2E2E2E] hover:bg-[#1A1A1A]">
-                      <TableCell colSpan={5} className="py-12 text-center text-xs text-muted-foreground">
-                        <Wallet className="h-8 w-8 text-[#2E2E2E] mx-auto mb-2" />
-                        Aún no tienes movimientos registrados en este período.
-                        <div className="mt-2">
-                          <Link href="/dashboard/transactions">
-                            <Button size="sm" variant="ghost" className="text-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/10 text-xs">
-                              + Agregar primera transacción
-                            </Button>
-                          </Link>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+              {isLoadingTx ? (
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full bg-[#27272A] rounded-xl" />
+                  ))}
+                </div>
+              ) : recentTransactions.length === 0 ? (
+                <div className="py-12 text-center text-xs text-muted-foreground">
+                  <Wallet className="h-8 w-8 text-[#2E2E2E] mx-auto mb-2" />
+                  Aún no tienes movimientos registrados.
+                  <div className="mt-3">
+                    <Link href="/dashboard/transactions">
+                      <Button size="sm" className="bg-[#10B981] text-white hover:bg-[#059669] text-xs">
+                        + Registrar primera transacción
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-[#2E2E2E] overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-[#121212]">
+                      <TableRow className="border-[#2E2E2E] hover:bg-transparent">
+                        <TableHead className="text-xs text-muted-foreground">Fecha</TableHead>
+                        <TableHead className="text-xs text-muted-foreground">Categoría</TableHead>
+                        <TableHead className="text-xs text-muted-foreground">Descripción</TableHead>
+                        <TableHead className="text-xs text-muted-foreground">Tipo</TableHead>
+                        <TableHead className="text-xs text-muted-foreground text-right">Monto</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentTransactions.map((tx) => {
+                        const isIncome = tx.type === 'income';
+                        const cat =
+                          tx.category || categories.find((c) => c.id === tx.category_id);
+                        const catColor = cat?.color || '#71717A';
+
+                        return (
+                          <TableRow key={tx.id} className="border-[#2E2E2E] hover:bg-[#1A1A1A]">
+                            <TableCell className="text-xs text-white whitespace-nowrap">
+                              {formatDate(tx.transaction_date)}
+                            </TableCell>
+
+                            <TableCell className="text-xs">
+                              {cat ? (
+                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-[#2E2E2E] bg-[#121212]">
+                                  <div
+                                    className="flex h-3.5 w-3.5 items-center justify-center rounded text-white text-[8px]"
+                                    style={{ backgroundColor: catColor }}
+                                  >
+                                    <CategoryIcon iconName={cat.icon} className="h-2 w-2" />
+                                  </div>
+                                  <span className="text-white text-xs">{cat.name}</span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground italic">
+                                  Sin categoría
+                                </span>
+                              )}
+                            </TableCell>
+
+                            <TableCell className="text-xs font-medium text-white max-w-[180px] truncate">
+                              {tx.description || (isIncome ? 'Ingreso' : 'Gasto')}
+                            </TableCell>
+
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  'text-[10px] font-semibold py-0.5',
+                                  isIncome
+                                    ? 'border-[#22C55E]/40 bg-[#22C55E]/10 text-[#22C55E]'
+                                    : 'border-[#EF4444]/40 bg-[#EF4444]/10 text-[#EF4444]'
+                                )}
+                              >
+                                {isIncome ? 'Ingreso' : 'Gasto'}
+                              </Badge>
+                            </TableCell>
+
+                            <TableCell className="text-right text-xs font-bold whitespace-nowrap">
+                              <span className={isIncome ? 'text-[#22C55E]' : 'text-[#EF4444]'}>
+                                {isIncome ? '+' : '-'}{currencySymbol}{formatAmount(tx.amount)}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -427,7 +559,7 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">Indicador de Capacidad de Ahorro</h3>
-                  <p className="text-xs text-muted-foreground">Basado en la regla financiera 50/30/20</p>
+                  <p className="text-xs text-muted-foreground">Basado en tus ingresos y gastos reales</p>
                 </div>
               </div>
 
@@ -436,26 +568,26 @@ export default function DashboardOverviewPage() {
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-muted-foreground">Necesidades & Gastos Fijos (Objetivo ≤ 50%)</span>
-                    <span className="text-white font-medium">0%</span>
+                    <span className="text-muted-foreground">Porcentaje de Gastos sobre Ingresos</span>
+                    <span className="text-white font-medium">{expenseRatio}%</span>
                   </div>
-                  <Progress value={0} className="h-2 bg-[#2E2E2E]" />
+                  <Progress value={expenseRatio} className="h-2 bg-[#2E2E2E]" />
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-muted-foreground">Gastos Opcionales (Objetivo ≤ 30%)</span>
-                    <span className="text-white font-medium">0%</span>
+                    <span className="text-muted-foreground">Amortización de Deudas</span>
+                    <span className="text-[#F97316] font-medium">{debtProgress}%</span>
                   </div>
-                  <Progress value={0} className="h-2 bg-[#2E2E2E]" />
+                  <Progress value={debtProgress} className="h-2 bg-[#2E2E2E]" />
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-muted-foreground">Ahorro e Inversión (Objetivo ≥ 20%)</span>
-                    <span className="text-[#10B981] font-semibold">0%</span>
+                    <span className="text-muted-foreground">Recuperación de Préstamos</span>
+                    <span className="text-[#3B82F6] font-medium">{loanProgress}%</span>
                   </div>
-                  <Progress value={0} className="h-2 bg-[#2E2E2E]" />
+                  <Progress value={loanProgress} className="h-2 bg-[#2E2E2E]" />
                 </div>
               </div>
             </Card>
@@ -479,7 +611,7 @@ export default function DashboardOverviewPage() {
 
               <div className="pt-2">
                 <Badge variant="outline" className="border-[#10B981]/30 bg-[#10B981]/10 text-[#10B981] text-xs">
-                  Estado: Conectado a la API
+                  Estado: Conectado en Tiempo Real
                 </Badge>
               </div>
             </Card>

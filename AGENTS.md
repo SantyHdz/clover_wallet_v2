@@ -221,11 +221,11 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
   - Drawer móvil lateral (`src/components/layout/mobile-drawer.tsx`) basado en Sheet de shadcn con navegación completa y cierre de sesión.
   - Bottom Navigation Bar móvil (`src/components/layout/bottom-nav.tsx`) con accesos directos a Inicio, Movimientos, Deudas, Reportes y Menú.
   - Layout autenticado (`src/app/dashboard/layout.tsx`) con protección de sesión, pantalla de carga y vista base `src/app/dashboard/page.tsx`.
-- [ ] **Paso 7: Vistas del Dashboard y Módulos Financieros**
+- [x] **Paso 7: Vistas del Dashboard y Módulos Financieros**
   - [x] **Categorías (`/dashboard/categories`)**: Gestor visual completo con servicio `categoriesService`, hooks `useCategories`, `useCreateCategory`, `useDeleteCategory`, selector visual de iconos de Lucide, paleta de colores y modales `CreateCategoryDialog` y `DeleteCategoryDialog` en shadcn.
   - [x] **Transacciones (`/dashboard/transactions`)**: Módulo completo con servicio `transactionsService`, hooks `useTransactions`, `useCreateTransaction`, `useUpdateTransaction`, `useDeleteTransaction`, filtros avanzados (tipo, categoría, mes, año, buscador), tabla interactiva de movimientos con badges semánticos y modales `TransactionFormDialog` y `DeleteTransactionDialog` en shadcn con feedback Sonner.
-  - [ ] Dashboard KPIs y gráficos en vivo.
-  - [ ] Deudas y Préstamos.
-  - [ ] Reportes y Estadísticas.
-  - [ ] Configuración y Perfil de Usuario.
+  - [x] **Dashboard KPIs y gráficos en vivo**: Conexión reactiva con `reportsService.getSummary()` (`/reports/summary`), cálculo de métricas financieras en tiempo real, balance disponible, progreso de amortización y cobranzas, y tabla de movimientos recientes.
+  - [x] **Deudas y Préstamos (`/dashboard/debts-loans`)**: Módulo completo con servicios `debtsService` y `loansService`, hooks `useDebts`, `useLoans`, `useDebtPayments`, `useLoanPayments`, pestañas ("Lo que debo" y "Lo que me deben"), KPIs de amortización/recuperación en tiempo real, filtros por estado (`pending`, `partial`, `paid`/`recovered`, `overdue`, `defaulted`), vista alternable Grid/Tabla, y modales atómicos `DebtFormDialog`, `LoanFormDialog`, `DebtPaymentDialog`, `LoanPaymentDialog`, `DeleteDebtDialog` y `DeleteLoanDialog` con Sonner toasts.
+  - [x] **Reportes y Estadísticas (`/dashboard/reports`)**: Módulo completo con gráficos oficiales de Shadcn (Recharts: `BarChart` para evolución mensual de 12 meses y `PieChart` tipo dona para desglose por categorías), KPIs de flujo neto y tasa de ahorro, filtros por año/mes, tablas detalladas de participación y generador de reportes en PDF de alta fidelidad vía API Route con Puppeteer (`/api/reports/export-pdf`) y diálogo modal `ExportReportDialog`. Formateo unificado de valores monetarios con separador de miles (`,`) y decimales.
+  - [x] **Configuración y Perfil de Usuario (`/dashboard/settings`)**: Módulo completo con servicio `usersService`, hooks `useUserProfile`, `useUpdateProfile`, `useUploadAvatar`, formulario reactivo con React Hook Form + Zod, selector de moneda con vista previa en tiempo real, subida de foto de perfil (avatar multipart), tarjeta de seguridad de cuenta con ID copiable, estado de proveedor de autenticación y cierre de sesión.
 
