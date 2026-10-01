@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   HandCoins,
+  PiggyBank,
   Tags,
   BarChart3,
   Settings,
@@ -60,6 +61,14 @@ const COMMAND_ITEMS: CommandItem[] = [
     description: 'Gestión de acreedores, deudores y amortizaciones',
     href: '/dashboard/debts-loans',
     icon: HandCoins,
+    category: 'Navegación',
+  },
+  {
+    id: 'savings',
+    title: 'Ahorros & Metas',
+    description: 'Metas financieras, alcancías y proyecciones de ahorro',
+    href: '/dashboard/savings',
+    icon: PiggyBank,
     category: 'Navegación',
   },
   {

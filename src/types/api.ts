@@ -7,7 +7,8 @@ export type DebtStatus = 'pending' | 'partial' | 'paid' | 'overdue';
 export type LoanStatus = 'pending' | 'partial' | 'recovered' | 'overdue' | 'defaulted';
 
 export type CategoryType = 'income' | 'expense' | 'both';
-export type SavingStatus = 'active' | 'completed' | 'paused' | 'cancelled' | string;
+export type SavingType = 'goal' | 'free';
+export type SavingStatus = 'active' | 'completed' | 'paused' | 'cancelled';
 
 // --- Auth ---
 export interface AuthResponse {
@@ -199,10 +200,10 @@ export interface Saving {
   user_id: string;
   name: string;
   description?: string | null;
+  type: SavingType;
   target_amount?: number | null;
   current_amount: number;
   target_date?: string | null;
-  type: string;
   status: SavingStatus;
   icon?: string | null;
   color?: string | null;
@@ -213,16 +214,21 @@ export interface Saving {
 export interface CreateSavingPayload {
   name: string;
   description?: string;
+  type: SavingType;
   target_amount?: number;
-  current_amount?: number;
   target_date?: string;
-  type: string;
   icon?: string;
   color?: string;
 }
 
-export interface UpdateSavingPayload extends Partial<CreateSavingPayload> {
+export interface UpdateSavingPayload {
+  name?: string;
+  description?: string;
+  target_amount?: number;
+  target_date?: string;
   status?: SavingStatus;
+  icon?: string;
+  color?: string;
 }
 
 // --- Aportes a Ahorros (`saving_contributions`) ---
@@ -231,15 +237,40 @@ export interface SavingContribution {
   saving_id: string;
   user_id: string;
   amount: number;
-  contribution_date: string;
   note?: string | null;
+  contribution_date: string;
   created_at: string;
 }
 
 export interface CreateSavingContributionPayload {
   amount: number;
-  contribution_date: string;
   note?: string;
+  contribution_date: string;
+}
+
+// --- Analítica y Resumen de Ahorros ---
+export interface SavingSummary {
+  total_saved: number;
+  total_goal: number;
+  savings_count: number;
+  completed_count: number;
+  active_count: number;
+}
+
+export interface MonthlyContribution {
+  year: number;
+  month: number;
+  total: number;
+}
+
+export interface SavingProjection {
+  saving_id: string;
+  name: string;
+  current_amount: number;
+  target_amount?: number | null;
+  monthly_average: number;
+  projected_date?: string | null;
+  months_remaining?: number | null;
 }
 
 // --- Reportes & Analíticas ---

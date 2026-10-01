@@ -232,8 +232,17 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
   - [x] **Landing Page 100% Responsive**: Ajuste completo del header, menú drawer lateral (`Sheet`) para móviles sin colisiones de texto o logo, y disposición optimizada de secciones informativas y botones de acción.
   - [x] **Grand Tabs en Deudas y Préstamos**: Pestañas divididas al 50/50 responsive ("Lo que debo" / "Lo que me deben") con banner Clover y coherencia visual con el resto de la aplicación.
   - [x] **Vista Cards en Transacciones**: Alternador de visualización Tabla / Cuadrícula (Cards) interactivo con badges de tipo, categorías con icono oficial y menú de acciones contextuales.
-- [ ] **Paso 8: Módulo de Ahorros & Metas Financieras (`/dashboard/savings`)** *(Próxima Sesión)*
-  - Servicio `savingsService` y hooks TanStack Query (`useSavings`, `useCreateSaving`, `useUpdateSaving`, `useDeleteSaving`, `useSavingContributions`, `useCreateSavingContribution`, `useDeleteSavingContribution`).
-  - Vista visual interactiva con metas de ahorro, porcentaje de progreso, barras dinámicas y modales de aportes/liquidación.
+- [x] **Paso 8: Módulo de Ahorros & Metas Financieras (`/dashboard/savings`)**
+  - **Servicio & API**: `src/lib/savings-service.ts` con CRUD completo, endpoints de aportes `/savings/{id}/contributions`, resumen `/savings/summary`, analítica anual `/savings/{id}/monthly` y proyecciones de 90 días `/savings/projections`.
+  - **Hooks TanStack Query**: `src/hooks/use-savings.ts` (`useSavings`, `useSavingSummary`, `useSavingProjections`, `useCreateSaving`, `useUpdateSaving`, `useDeleteSaving`, `useSavingContributions`, `useCreateSavingContribution`, `useDeleteSavingContribution`, `useMonthlyContributions`).
+  - **Componentes & Modales Atómicos**:
+    - `SavingSummaryCards`: 4 KPIs superiores (Total Ahorrado, Meta Global con % de alcance, Metas Activas, Metas Completadas).
+    - `SavingCard`: Tarjeta interactiva con badge de tipo (`goal` / `free`), badge de estado, tipografía dinámica anti-desbordamiento, barra de progreso con gradiente temático, píldora de proyección inteligente basada en ritmo real de 90 días, días restantes y menú contextual con acciones rápidas (`+ Aportar`, `Ver Historial`, `Pausar/Reanudar`, `Editar`, `Eliminar`).
+    - `SavingFormDialog`: Modal de creación y edición con toggle de tipo (Meta vs Alcancía libre), selector de iconos y paleta de colores Clover con validaciones Zod.
+    - `SavingContributionDialog`: Modal de depósito rápido con cálculo dinámico en tiempo real del nuevo acumulado y nueva barra de progreso.
+    - `SavingDetailDialog`: Drawer/Modal profundo con gráfica de barras de aportes por mes (`Recharts`), desglose de ritmo proyectado e historial completo de aportes con eliminación individual.
+    - `DeleteSavingDialog`: Diálogo seguro de confirmación de borrado.
+  - **Navegación Global**: Integración de "Ahorros & Metas" en el Sidebar desktop (`PiggyBank`), Drawer móvil, Breadcrumb del Header y buscador global ⌘K (`SearchCommandDialog`).
+
 
 

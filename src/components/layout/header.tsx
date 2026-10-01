@@ -45,6 +45,7 @@ const ROUTE_LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
   transactions: 'Transacciones',
   'debts-loans': 'Deudas y Préstamos',
+  savings: 'Ahorros & Metas',
   categories: 'Categorías',
   reports: 'Reportes',
   settings: 'Ajustes',

@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   HandCoins,
+  PiggyBank,
   Tags,
   BarChart3,
   Settings,
@@ -46,6 +47,11 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Deudas y Préstamos',
     href: '/dashboard/debts-loans',
     icon: HandCoins,
+  },
+  {
+    title: 'Ahorros & Metas',
+    href: '/dashboard/savings',
+    icon: PiggyBank,
   },
   {
     title: 'Categorías',
