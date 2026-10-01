@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import authService from '@/lib/auth-service';
 import { getStoredToken } from '@/lib/api-client';
 import { User, LoginPayload, RegisterPayload } from '@/types';
@@ -23,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const fetchUser = useCallback(async () => {
     const token = getStoredToken();
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (payload: LoginPayload) => {
     setIsLoading(true);
     try {
+      queryClient.clear();
       await authService.login(payload);
       const userData = await authService.getCurrentUser();
       setUser({
@@ -65,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (payload: RegisterPayload) => {
     setIsLoading(true);
     try {
+      queryClient.clear();
       await authService.register(payload);
       const userData = await authService.getCurrentUser();
       setUser({
@@ -84,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setIsLoading(true);
     try {
+      queryClient.clear();
       await authService.logout();
       setUser(null);
       router.push('/login');
