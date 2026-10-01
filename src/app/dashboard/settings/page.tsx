@@ -17,8 +17,6 @@ import {
   LogOut,
   CheckCircle2,
   Copy,
-  Sparkles,
-  Layers,
   Wallet,
 } from 'lucide-react';
 import {

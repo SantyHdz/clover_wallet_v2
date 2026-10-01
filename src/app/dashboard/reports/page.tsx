@@ -240,14 +240,16 @@ export default function ReportsPage() {
           </Select>
 
           {/* Botón de Exportación con Puppeteer */}
-          <ExportReportDialog
-            currentYear={selectedYear}
-            currentMonth={selectedMonth}
-            summary={summary}
-            monthlyData={rawMonthlyData}
-            breakdown={breakdownData}
-            transactions={transactions}
-          />
+          <div data-tour="reports-export">
+            <ExportReportDialog
+              currentYear={selectedYear}
+              currentMonth={selectedMonth}
+              summary={summary}
+              monthlyData={rawMonthlyData}
+              breakdown={breakdownData}
+              transactions={transactions}
+            />
+          </div>
         </div>
       </div>
 

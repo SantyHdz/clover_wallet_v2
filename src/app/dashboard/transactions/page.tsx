@@ -141,6 +141,7 @@ export default function TransactionsPage() {
         </div>
 
         <Button
+          data-tour="tx-add-btn"
           onClick={handleOpenCreate}
           className="bg-[#10B981] text-white hover:bg-[#059669] shadow-md shadow-[#10B981]/25 font-semibold text-xs h-10 px-4 cursor-pointer self-start sm:self-auto"
         >
@@ -236,23 +237,25 @@ export default function TransactionsPage() {
       {/* ─────────────────────────────────────────────────────────────
           3. ADVANCED FILTERS BAR
       ───────────────────────────────────────────────────────────── */}
-      <TransactionFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
-        selectedCategoryId={selectedCategoryId}
-        onCategoryChange={setSelectedCategoryId}
-        selectedMonth={selectedMonth}
-        onMonthChange={setSelectedMonth}
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
-        categories={categories}
-        onResetFilters={handleResetFilters}
-        hasActiveFilters={hasActiveFilters}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      />
+      <div data-tour="tx-filters">
+        <TransactionFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedCategoryId={selectedCategoryId}
+          onCategoryChange={setSelectedCategoryId}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          categories={categories}
+          onResetFilters={handleResetFilters}
+          hasActiveFilters={hasActiveFilters}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
+      </div>
 
       {/* ─────────────────────────────────────────────────────────────
           4. TRANSACTIONS LIST (TABLE OR GRID CARDS)

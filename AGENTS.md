@@ -242,7 +242,15 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
     - `SavingContributionDialog`: Modal de depósito rápido con cálculo dinámico en tiempo real del nuevo acumulado y nueva barra de progreso.
     - `SavingDetailDialog`: Drawer/Modal profundo con gráfica de barras de aportes por mes (`Recharts`), desglose de ritmo proyectado e historial completo de aportes con eliminación individual.
     - `DeleteSavingDialog`: Diálogo seguro de confirmación de borrado.
-  - **Navegación Global**: Integración de "Ahorros & Metas" en el Sidebar desktop (`PiggyBank`), Drawer móvil, Breadcrumb del Header y buscador global ⌘K (`SearchCommandDialog`).
+- [x] **Paso 9: Sistema de Onboarding & Tour Guiado Multipage**
+  - **Persistencia en Base de Datos**: Integración con la columna `profiles.has_completed_onboarding` (Supabase) a través de `GET /users/me` y `PATCH /users/me` sin dependencias de `localStorage`.
+  - **Controlador Multipage**: `src/lib/onboarding-tour.ts` con importación de `driver.js/dist/driver.css`, desplazamiento automático centrado (`scrollIntoView({ behavior: 'smooth', block: 'center' })`) y tooltip flotante anclado al elemento con flecha indicadora responsive.
+  - **Modal de Bienvenida**: `src/components/onboarding/welcome-onboarding-dialog.tsx` con ilustración oficial (`/images/mascot.png`), diseño fintech limpio (0 emojis) y opciones de inicio o exploración libre.
+  - **Estilos de Tema Oscuro**: Popovers tooltip personalizados en `src/app/globals.css` alineados con los tokens oficiales (`#121212`, `#1E1E1E`, `#10B981`, `#2E2E2E`).
+  - **Contexto Global**: `src/contexts/onboarding-context.tsx` conectado a `useUserProfile` y `useUpdateProfile`.
+  - **Puntos de Anclaje `data-tour`**: Integrados en Dashboard (`dashboard-kpis`, `dashboard-recent`), Transacciones (`tx-filters`, `tx-add-btn`), Deudas y Préstamos (`debts-tabs`), Ahorros (`savings-grid`) y Reportes (`reports-export`).
+  - **Limpieza de Ajustes**: Vista de ajustes (`/dashboard/settings`) limpia sin tarjetas redundantes de reinicio.
+
 
 
 

@@ -35,6 +35,7 @@ export interface User {
   avatar_url?: string | null;
   provider: string;
   currency: string;
+  has_completed_onboarding?: boolean;
   created_at: string;
   updated_at?: string;
 }
@@ -42,6 +43,7 @@ export interface User {
 export interface UpdateUserPayload {
   full_name?: string;
   currency?: string;
+  has_completed_onboarding?: boolean;
 }
 
 // --- Categorías (`categories`) ---

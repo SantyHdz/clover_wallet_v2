@@ -153,7 +153,7 @@ export default function DashboardOverviewPage() {
       {/* ─────────────────────────────────────────────────────────────
           2. 4 FINANCIAL KPI CARDS (DATOS REALES)
       ───────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div data-tour="dashboard-kpis" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* KPI 1: Ingresos */}
         <Card className="border-[#2E2E2E] bg-[#1E1E1E] hover:border-[#22C55E]/40 transition-all shadow-md group">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -337,7 +337,7 @@ export default function DashboardOverviewPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Net Balance Card */}
-            <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-6 lg:col-span-2 shadow-lg flex flex-col justify-between">
+            <Card data-tour="dashboard-recent" className="border-[#2E2E2E] bg-[#1E1E1E] p-6 lg:col-span-2 shadow-lg flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>

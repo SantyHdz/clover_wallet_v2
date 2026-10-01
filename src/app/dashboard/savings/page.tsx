@@ -243,8 +243,9 @@ export default function SavingsPage() {
       </div>
 
       {/* 4. Grid de Tarjetas de Ahorro */}
-      {isLoadingSavings ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div data-tour="savings-grid">
+        {isLoadingSavings ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
@@ -314,6 +315,7 @@ export default function SavingsPage() {
           ))}
         </div>
       )}
+      </div>
 
       {/* 5. Modales Atómicos */}
       {/* Modal Crear / Editar Meta */}

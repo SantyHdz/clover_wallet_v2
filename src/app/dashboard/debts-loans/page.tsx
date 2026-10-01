@@ -211,7 +211,7 @@ export default function DebtsLoansPage() {
       {/* ─────────────────────────────────────────────────────────────
           2. GRAND TABS DE MODO (50% / 50% FULL-WIDTH RESPONSIVE)
       ───────────────────────────────────────────────────────────── */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" role="tablist">
+      <div data-tour="debts-tabs" className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" role="tablist">
         {/* Tab 1: Deudas */}
         <button
           type="button"
