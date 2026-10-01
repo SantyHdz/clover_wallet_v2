@@ -110,8 +110,8 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
 - `POST /auth/login/google` -> Header: `Authorization: Bearer <supabase_token>` -> Retorna: `{ access_token, token_type }`
 
 ### 5.2. Usuario & Perfil (`/users`)
-- `GET /users/me` -> Retorna: `{ id, full_name, avatar_url, provider, currency, created_at }`
-- `PATCH /users/me` -> Body: `{ full_name?, currency? }`
+- `GET /users/me` -> Retorna: `{ id, full_name, avatar_url, provider, currency, has_completed_onboarding, created_at }`
+- `PATCH /users/me` -> Body: `{ full_name?, currency?, has_completed_onboarding? }`
 - `POST /users/me/avatar` -> Multipart Form: `file`
 
 ### 5.3. Transacciones (`/transactions`)
@@ -174,7 +174,7 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
 
 | Tabla | Columnas Principales | Tipos de Datos & Nullability |
 | :--- | :--- | :--- |
-| **`profiles`** | `id` (PK, uuid, NOT NULL), `full_name` (text, NULL), `avatar_url` (text, NULL), `provider` (text, NOT NULL), `currency` (text, NOT NULL), `created_at` (timestamptz, NOT NULL), `updated_at` (timestamptz, NOT NULL) |
+| **`profiles`** | `id` (PK, uuid, NOT NULL), `full_name` (text, NULL), `avatar_url` (text, NULL), `provider` (text, NOT NULL), `currency` (text, NOT NULL), `has_completed_onboarding` (bool, NOT NULL, DEFAULT FALSE), `created_at` (timestamptz, NOT NULL), `updated_at` (timestamptz, NOT NULL) |
 | **`categories`** | `id` (PK, uuid, NOT NULL), `user_id` (FK, uuid, NULL), `is_global` (bool, NOT NULL), `name` (text, NOT NULL), `icon` (text, NULL), `color` (text, NULL), `type` (text, NOT NULL), `created_at` (timestamptz, NOT NULL) |
 | **`transactions`** | `id` (PK, uuid, NOT NULL), `user_id` (FK, uuid, NOT NULL), `category_id` (FK, uuid, NULL), `amount` (numeric, NOT NULL), `type` (text, NOT NULL), `description` (text, NULL), `notes` (text, NULL), `transaction_date` (date, NOT NULL), `is_recurring` (bool, NOT NULL), `recurrence` (text, NULL), `created_at` (timestamptz, NOT NULL), `updated_at` (timestamptz, NOT NULL) |
 | **`debts`** | `id` (PK, uuid, NOT NULL), `user_id` (FK, uuid, NOT NULL), `creditor_name` (text, NOT NULL), `description` (text, NULL), `total_amount` (numeric, NOT NULL), `paid_amount` (numeric, NOT NULL), `interest_rate` (numeric, NULL), `due_date` (date, NULL), `status` (text, NOT NULL), `created_at` (timestamptz, NOT NULL), `updated_at` (timestamptz, NOT NULL) |
@@ -250,6 +250,12 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
   - **Contexto Global**: `src/contexts/onboarding-context.tsx` conectado a `useUserProfile` y `useUpdateProfile`.
   - **Puntos de Anclaje `data-tour`**: Integrados en Dashboard (`dashboard-kpis`, `dashboard-recent`), Transacciones (`tx-filters`, `tx-add-btn`), Deudas y Préstamos (`debts-tabs`), Ahorros (`savings-grid`) y Reportes (`reports-export`).
   - **Limpieza de Ajustes**: Vista de ajustes (`/dashboard/settings`) limpia sin tarjetas redundantes de reinicio.
+- [x] **Paso 10: Keep-Alive & Optimización de Cold Start (Render + Supabase)**
+  - **Backend (`/health`)**: Endpoint público `@app.api_route('/health', methods=['GET', 'HEAD'])` que realiza una consulta `LIMIT 1` a `categories` con `get_supabase_admin()` para mantener despierto Render y activa la BD de Supabase.
+  - **Frontend (`api-client.ts`)**: Timeout ampliado a 60,000 ms para tolerar arranques en frío de Render en free tier.
+  - **Wake-Up Silencioso (`BackendWakeUp`)**: Disparo temprano de `/health` en el montaje del frontend dentro de `AppProviders`.
+  - **Feedback Dinámico de Conexión**: Estados de carga amigables tras 2.5s en `DashboardLayout` y tras 3.0s en `LoginPage` ("Despertando servidor...") con temporizadores con limpieza automática.
+
 
 
 

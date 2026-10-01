@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
 import { OnboardingProvider } from '@/contexts/onboarding-context';
+import { BackendWakeUp } from '@/components/common/backend-wake-up';
 
 export { useAuth, AuthProvider };
 
@@ -29,6 +30,7 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <BackendWakeUp />
       <AuthProvider>
         <OnboardingProvider>
           <TooltipProvider delay={200}>

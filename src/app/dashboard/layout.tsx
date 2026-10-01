@@ -18,6 +18,22 @@ export default function DashboardLayout({
   const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState<boolean>(false);
+  const [showSlowLoadingMessage, setShowSlowLoadingMessage] = useState<boolean>(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (isLoading) {
+      timer = setTimeout(() => {
+        setShowSlowLoadingMessage(true);
+      }, 2500);
+    } else {
+      setShowSlowLoadingMessage(false);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -39,9 +55,16 @@ export default function DashboardLayout({
               priority
             />
           </div>
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#10B981] border-t-transparent" />
-            <span>Cargando Clover Wallet...</span>
+          <div className="flex flex-col items-center gap-2 text-sm font-medium text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#10B981] border-t-transparent" />
+              <span>Cargando Clover Wallet...</span>
+            </div>
+            {showSlowLoadingMessage && (
+              <p className="text-xs text-muted-foreground/80 animate-in fade-in duration-300">
+                Conectando con el servidor... puede tardar unos segundos
+              </p>
+            )}
           </div>
         </div>
       </div>

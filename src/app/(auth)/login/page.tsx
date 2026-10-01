@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +26,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isSlowLogin, setIsSlowLogin] = useState(false);
+  const slowTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (slowTimerRef.current) {
+        clearTimeout(slowTimerRef.current);
+      }
+    };
+  }, []);
 
   const {
     register,
@@ -41,6 +51,12 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
+    setIsSlowLogin(false);
+    if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+    slowTimerRef.current = setTimeout(() => {
+      setIsSlowLogin(true);
+    }, 3000);
+
     try {
       await login(data);
       toast.success('¡Bienvenido de vuelta a Clover Wallet!');
@@ -50,6 +66,11 @@ export default function LoginPage() {
         description: message,
       });
     } finally {
+      if (slowTimerRef.current) {
+        clearTimeout(slowTimerRef.current);
+        slowTimerRef.current = null;
+      }
+      setIsSlowLogin(false);
       setIsSubmitting(false);
     }
   };
@@ -189,7 +210,7 @@ export default function LoginPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Ingresando...
+                {isSlowLogin ? 'Despertando servidor...' : 'Ingresando...'}
               </>
             ) : (
               'Ingresar al Dashboard'
