@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Tags,
   Plus,
@@ -18,6 +18,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Category, CategoryType } from '@/types';
 import { useCategories } from '@/hooks/use-categories';
+import { usePagination } from '@/hooks/use-pagination';
+import { DataPagination } from '@/components/common/data-pagination';
 import { CategoryCard } from '@/components/categories/category-card';
 import { CreateCategoryDialog } from '@/components/categories/create-category-dialog';
 import { DeleteCategoryDialog } from '@/components/categories/delete-category-dialog';
@@ -37,20 +39,44 @@ export default function CategoriesPage() {
   const customCount = categories.filter((c) => !c.is_global).length;
 
   // Filtered categories
-  const filteredCategories = categories.filter((category) => {
-    const matchesSearch = category.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+  const filteredCategories = useMemo(() => {
+    return categories.filter((category) => {
+      const matchesSearch = category.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (filterType === 'all') return true;
-    if (filterType === 'expense') return category.type === 'expense' || category.type === 'both';
-    if (filterType === 'income') return category.type === 'income' || category.type === 'both';
-    if (filterType === 'custom') return !category.is_global;
+      if (filterType === 'all') return true;
+      if (filterType === 'expense') return category.type === 'expense' || category.type === 'both';
+      if (filterType === 'income') return category.type === 'income' || category.type === 'both';
+      if (filterType === 'custom') return !category.is_global;
 
-    return true;
+      return true;
+    });
+  }, [categories, searchQuery, filterType]);
+
+  // Paginación para Categorías
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalItems,
+    totalPages,
+    paginatedItems,
+    startIndex,
+    endIndex,
+    resetPage,
+  } = usePagination({
+    items: filteredCategories,
+    initialPageSize: 9,
   });
+
+  // Reset de página al cambiar búsqueda o filtro de tipo
+  useEffect(() => {
+    resetPage();
+  }, [searchQuery, filterType]);
 
   const handleDeleteRequest = (category: Category) => {
     setCategoryToDelete(category);
@@ -249,14 +275,28 @@ export default function CategoriesPage() {
           </div>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredCategories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              onDeleteRequest={handleDeleteRequest}
-            />
-          ))}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedItems.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                onDeleteRequest={handleDeleteRequest}
+              />
+            ))}
+          </div>
+          <DataPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            startIndex={startIndex}
+            endIndex={endIndex}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[6, 9, 18, 30]}
+            itemLabel="categorías"
+          />
         </div>
       )}
 

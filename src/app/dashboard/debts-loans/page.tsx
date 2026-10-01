@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   HandCoins,
   Plus,
@@ -23,6 +23,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Debt, Loan } from '@/types';
 import { useDebts } from '@/hooks/use-debts';
 import { useLoans } from '@/hooks/use-loans';
+import { usePagination } from '@/hooks/use-pagination';
 import { DebtsLoansSummary } from '@/components/debts-loans/debts-loans-summary';
 import { DebtCard } from '@/components/debts-loans/debt-card';
 import { DebtsTable } from '@/components/debts-loans/debts-table';
@@ -34,6 +35,7 @@ import { LoansTable } from '@/components/debts-loans/loans-table';
 import { LoanFormDialog } from '@/components/debts-loans/loan-form-dialog';
 import { LoanPaymentDialog } from '@/components/debts-loans/loan-payment-dialog';
 import { DeleteLoanDialog } from '@/components/debts-loans/delete-loan-dialog';
+import { DataPagination } from '@/components/common/data-pagination';
 import { cn } from '@/lib/utils';
 
 export default function DebtsLoansPage() {
@@ -136,6 +138,49 @@ export default function DebtsLoansPage() {
       return matchesSearch && matchesStatus;
     });
   }, [loans, searchQuery, loanStatusFilter]);
+
+  // Paginación para Deudas
+  const {
+    currentPage: debtsPage,
+    setCurrentPage: setDebtsPage,
+    pageSize: debtsPageSize,
+    setPageSize: setDebtsPageSize,
+    totalItems: totalDebts,
+    totalPages: totalDebtsPages,
+    paginatedItems: paginatedDebts,
+    startIndex: debtsStartIndex,
+    endIndex: debtsEndIndex,
+    resetPage: resetDebtsPage,
+  } = usePagination({
+    items: filteredDebts,
+    initialPageSize: 9,
+  });
+
+  // Paginación para Préstamos
+  const {
+    currentPage: loansPage,
+    setCurrentPage: setLoansPage,
+    pageSize: loansPageSize,
+    setPageSize: setLoansPageSize,
+    totalItems: totalLoans,
+    totalPages: totalLoansPages,
+    paginatedItems: paginatedLoans,
+    startIndex: loansStartIndex,
+    endIndex: loansEndIndex,
+    resetPage: resetLoansPage,
+  } = usePagination({
+    items: filteredLoans,
+    initialPageSize: 9,
+  });
+
+  // Reset pagination on filter or search changes
+  useEffect(() => {
+    resetDebtsPage();
+  }, [searchQuery, debtStatusFilter]);
+
+  useEffect(() => {
+    resetLoansPage();
+  }, [searchQuery, loanStatusFilter]);
 
   // Handlers para Deudas
   const handleOpenNewDebt = () => {
@@ -524,24 +569,52 @@ export default function DebtsLoansPage() {
             </CardContent>
           </Card>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredDebts.map((debt) => (
-              <DebtCard
-                key={debt.id}
-                debt={debt}
-                onPay={handlePayDebt}
-                onEdit={handleEditDebt}
-                onDelete={handleDeleteDebt}
-              />
-            ))}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginatedDebts.map((debt) => (
+                <DebtCard
+                  key={debt.id}
+                  debt={debt}
+                  onPay={handlePayDebt}
+                  onEdit={handleEditDebt}
+                  onDelete={handleDeleteDebt}
+                />
+              ))}
+            </div>
+            <DataPagination
+              currentPage={debtsPage}
+              totalPages={totalDebtsPages}
+              totalItems={totalDebts}
+              pageSize={debtsPageSize}
+              startIndex={debtsStartIndex}
+              endIndex={debtsEndIndex}
+              onPageChange={setDebtsPage}
+              onPageSizeChange={setDebtsPageSize}
+              pageSizeOptions={[6, 9, 18, 30]}
+              itemLabel="deudas"
+            />
           </div>
         ) : (
-          <DebtsTable
-            debts={filteredDebts}
-            onPay={handlePayDebt}
-            onEdit={handleEditDebt}
-            onDelete={handleDeleteDebt}
-          />
+          <div className="space-y-3">
+            <DebtsTable
+              debts={paginatedDebts}
+              onPay={handlePayDebt}
+              onEdit={handleEditDebt}
+              onDelete={handleDeleteDebt}
+            />
+            <DataPagination
+              currentPage={debtsPage}
+              totalPages={totalDebtsPages}
+              totalItems={totalDebts}
+              pageSize={debtsPageSize}
+              startIndex={debtsStartIndex}
+              endIndex={debtsEndIndex}
+              onPageChange={setDebtsPage}
+              onPageSizeChange={setDebtsPageSize}
+              pageSizeOptions={[6, 9, 18, 30]}
+              itemLabel="deudas"
+            />
+          </div>
         )
       ) : (
         /* CONTENIDO PRÉSTAMOS */
@@ -575,24 +648,52 @@ export default function DebtsLoansPage() {
             </CardContent>
           </Card>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredLoans.map((loan) => (
-              <LoanCard
-                key={loan.id}
-                loan={loan}
-                onPay={handlePayLoan}
-                onEdit={handleEditLoan}
-                onDelete={handleDeleteLoan}
-              />
-            ))}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginatedLoans.map((loan) => (
+                <LoanCard
+                  key={loan.id}
+                  loan={loan}
+                  onPay={handlePayLoan}
+                  onEdit={handleEditLoan}
+                  onDelete={handleDeleteLoan}
+                />
+              ))}
+            </div>
+            <DataPagination
+              currentPage={loansPage}
+              totalPages={totalLoansPages}
+              totalItems={totalLoans}
+              pageSize={loansPageSize}
+              startIndex={loansStartIndex}
+              endIndex={loansEndIndex}
+              onPageChange={setLoansPage}
+              onPageSizeChange={setLoansPageSize}
+              pageSizeOptions={[6, 9, 18, 30]}
+              itemLabel="préstamos"
+            />
           </div>
         ) : (
-          <LoansTable
-            loans={filteredLoans}
-            onPay={handlePayLoan}
-            onEdit={handleEditLoan}
-            onDelete={handleDeleteLoan}
-          />
+          <div className="space-y-3">
+            <LoansTable
+              loans={paginatedLoans}
+              onPay={handlePayLoan}
+              onEdit={handleEditLoan}
+              onDelete={handleDeleteLoan}
+            />
+            <DataPagination
+              currentPage={loansPage}
+              totalPages={totalLoansPages}
+              totalItems={totalLoans}
+              pageSize={loansPageSize}
+              startIndex={loansStartIndex}
+              endIndex={loansEndIndex}
+              onPageChange={setLoansPage}
+              onPageSizeChange={setLoansPageSize}
+              pageSizeOptions={[6, 9, 18, 30]}
+              itemLabel="préstamos"
+            />
+          </div>
         )
       )}
 

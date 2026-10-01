@@ -55,6 +55,8 @@ import {
   useDeleteSavingContribution,
   useMonthlyContributions,
 } from '@/hooks/use-savings';
+import { usePagination } from '@/hooks/use-pagination';
+import { DataPagination } from '@/components/common/data-pagination';
 import { Saving, SavingProjection } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
 import { formatMoney, formatAmount, getAmountFontSize, cn } from '@/lib/utils';
@@ -100,6 +102,22 @@ export function SavingDetailDialog({
     data: contributions = [],
     isLoading: isLoadingContributions,
   } = useSavingContributions(saving?.id);
+
+  // Paginación para historial de aportes
+  const {
+    currentPage: contribPage,
+    setCurrentPage: setContribPage,
+    pageSize: contribPageSize,
+    setPageSize: setContribPageSize,
+    totalItems: totalContribs,
+    totalPages: totalContribPages,
+    paginatedItems: paginatedContributions,
+    startIndex: contribStartIndex,
+    endIndex: contribEndIndex,
+  } = usePagination({
+    items: contributions,
+    initialPageSize: 5,
+  });
 
   const {
     data: monthlyData = [],
@@ -345,7 +363,7 @@ export function SavingDetailDialog({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {contributions.map((c) => (
+                    {paginatedContributions.map((c) => (
                       <TableRow
                         key={c.id}
                         className="border-b border-[#2E2E2E]/60 hover:bg-[#1E1E1E]"
@@ -379,6 +397,18 @@ export function SavingDetailDialog({
                     ))}
                   </TableBody>
                 </Table>
+                <DataPagination
+                  currentPage={contribPage}
+                  totalPages={totalContribPages}
+                  totalItems={totalContribs}
+                  pageSize={contribPageSize}
+                  startIndex={contribStartIndex}
+                  endIndex={contribEndIndex}
+                  onPageChange={setContribPage}
+                  onPageSizeChange={setContribPageSize}
+                  pageSizeOptions={[5, 10, 20]}
+                  itemLabel="aportes"
+                />
               </div>
             )}
           </TabsContent>

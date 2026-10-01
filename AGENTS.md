@@ -265,6 +265,14 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
   - **Despliegue Global de `AnimatedAmount`**: Integrado en los KPIs de Dashboard general, Resumen de Transacciones, Resumen y tarjetas de Deudas/Préstamos, Resumen y tarjetas de Ahorros/Metas, y Reportes mensuales.
   - **Máscara Inteligente de Moneda (`react-currency-input-field`)**: Componente `CurrencyInput` (`src/components/ui/currency-input.tsx`) estilizado en Dark Theme Escandinavo (`#121212` / `#1E1E1E` / `#2E2E2E` / `#10B981`) con separación automática de miles (`,`) y decimales (`.`).
   - **Integración React Hook Form en Formularios Financieros**: Implementado con `Controller` en modales de creación/edición de Transacciones (`TransactionFormDialog`), Deudas (`DebtFormDialog`), Préstamos (`LoanFormDialog`), Abonos a Deudas (`DebtPaymentDialog`), Cobros de Préstamos (`LoanPaymentDialog`), Metas de Ahorro (`SavingFormDialog`), y Aportes a Metas (`SavingContributionDialog`).
+- [x] **Paso 13: Paginación Inteligente y Control de Densidad de Datos**
+  - **Componente Base Shadcn UI (`src/components/ui/pagination.tsx`)**: Implementación accesible con soporte de navegación (`Pagination`, `PaginationContent`, `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis`) estilizado en Dark Theme Escandinavo (`#121212` / `#1E1E1E` / `#10B981` / `#2E2E2E`).
+  - **Hook Reactivo (`src/hooks/use-pagination.ts`)**: `usePagination` para cálculo automático de rebanadas en memoria (`paginatedItems`), conteo de páginas, índices de rango (`startIndex`, `endIndex`) y reinicio ante cambios de filtros/búsqueda.
+  - **Controlador Reutilizable (`src/components/common/data-pagination.tsx`)**: Componente `DataPagination` con selector de densidad de filas (`[10 | 20 | 50]` por página), botones primera/anterior/números con elipsis/siguiente/última y contador semántico (*"Mostrando 1 - 10 de 45 registros"*).
+  - **Despliegue en Transacciones (`/dashboard/transactions`)**: Integrado en ambas modalidades (Vista Tabla y Vista Cards) con reinicio automático de página al cambiar filtros de búsqueda, categoría, tipo o fecha.
+  - **Despliegue en Deudas y Préstamos (`/dashboard/debts-loans`)**: Integrado de forma independiente en las pestañas de Deudas y Préstamos tanto para la vista en cuadrícula como para la vista en tabla.
+  - **Despliegue en Historial de Aportes de Ahorro (`SavingDetailDialog`)**: Paginación integrada en la tabla de depósitos dentro del modal de detalle de metas y alcancías.
+  - **Despliegue en Gestor de Categorías (`/dashboard/categories`)**: Integrado en la cuadrícula de categorías (inicialmente 9 tarjetas por página con opciones 6, 9, 18, 30) y reseteo automático al buscar o cambiar entre pestañas de tipo (Todas / Gastos / Ingresos / Mis Categorías).
 
 
 

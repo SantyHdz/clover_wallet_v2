@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ArrowLeftRight,
   Plus,
@@ -14,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Transaction, TransactionType } from '@/types';
 import { useTransactions } from '@/hooks/use-transactions';
 import { useCategories } from '@/hooks/use-categories';
+import { usePagination } from '@/hooks/use-pagination';
 import { useAuth } from '@/contexts/auth-context';
 import { TransactionsTable } from '@/components/transactions/transactions-table';
 import { TransactionCard } from '@/components/transactions/transaction-card';
@@ -21,6 +22,7 @@ import { TransactionFilters } from '@/components/transactions/transaction-filter
 import { TransactionFormDialog } from '@/components/transactions/transaction-form-dialog';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import { AnimatedAmount } from '@/components/common/animated-amount';
+import { DataPagination } from '@/components/common/data-pagination';
 import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 export default function TransactionsPage() {
@@ -65,7 +67,29 @@ export default function TransactionsPage() {
     );
   }, [transactions, searchQuery]);
 
-  // Compute metrics from current transactions
+  // Pagination hook
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalItems,
+    totalPages,
+    paginatedItems,
+    startIndex,
+    endIndex,
+    resetPage,
+  } = usePagination({
+    items: filteredTransactions,
+    initialPageSize: 10,
+  });
+
+  // Reset pagination to page 1 whenever search or filters change
+  useEffect(() => {
+    resetPage();
+  }, [searchQuery, selectedType, selectedCategoryId, selectedMonth, selectedYear]);
+
+  // Compute metrics from all matching transactions
   const metrics = useMemo(() => {
     let income = 0;
     let expense = 0;
@@ -272,15 +296,30 @@ export default function TransactionsPage() {
           4. TRANSACTIONS LIST (TABLE OR GRID CARDS)
       ───────────────────────────────────────────────────────────── */}
       {viewMode === 'table' ? (
-        <TransactionsTable
-          transactions={filteredTransactions}
-          categories={categories}
-          isLoading={isLoading}
-          onEdit={handleOpenEdit}
-          onDelete={handleOpenDelete}
-          onCreateNew={handleOpenCreate}
-          currencySymbol={currencySymbol}
-        />
+        <div className="space-y-3">
+          <TransactionsTable
+            transactions={paginatedItems}
+            categories={categories}
+            isLoading={isLoading}
+            onEdit={handleOpenEdit}
+            onDelete={handleOpenDelete}
+            onCreateNew={handleOpenCreate}
+            currencySymbol={currencySymbol}
+          />
+          {!isLoading && filteredTransactions.length > 0 && (
+            <DataPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              itemLabel="transacciones"
+            />
+          )}
+        </div>
       ) : isLoading ? (
         <div className="flex items-center justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#10B981] border-t-transparent" />
@@ -311,17 +350,30 @@ export default function TransactionsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTransactions.map((tx) => (
-            <TransactionCard
-              key={tx.id}
-              transaction={tx}
-              category={categories.find((c) => c.id === tx.category_id)}
-              currencySymbol={currencySymbol}
-              onEdit={handleOpenEdit}
-              onDelete={handleOpenDelete}
-            />
-          ))}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedItems.map((tx) => (
+              <TransactionCard
+                key={tx.id}
+                transaction={tx}
+                category={categories.find((c) => c.id === tx.category_id)}
+                currencySymbol={currencySymbol}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+              />
+            ))}
+          </div>
+          <DataPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            startIndex={startIndex}
+            endIndex={endIndex}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            itemLabel="transacciones"
+          />
         </div>
       )}
 
