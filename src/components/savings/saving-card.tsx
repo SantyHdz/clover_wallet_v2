@@ -32,6 +32,7 @@ import {
 import { CategoryIcon } from '@/lib/category-icons';
 import { useAuth } from '@/contexts/auth-context';
 import { cn, formatMoney, getAmountFontSize } from '@/lib/utils';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { Saving, SavingProjection, SavingStatus } from '@/types';
 
 interface SavingCardProps {
@@ -291,7 +292,7 @@ export function SavingCard({
               )}
               title={formattedCurrent}
             >
-              {formattedCurrent}
+              <AnimatedAmount value={currentAmount} currency={currency} sizeVariant="2xl" />
             </div>
 
             {/* Barra de Progreso si es Objetivo */}

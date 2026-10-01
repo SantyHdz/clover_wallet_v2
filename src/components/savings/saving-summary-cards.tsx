@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { cn, formatMoney, getAmountFontSize } from '@/lib/utils';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { SavingSummary } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -67,7 +68,10 @@ export function SavingSummaryCards({ summary, isLoading }: SavingSummaryCardsPro
               )}
               title={formattedSaved}
             >
-              {formattedSaved}
+              <AnimatedAmount
+                value={totalSaved}
+                prefix={currency === 'EUR' ? '€' : '$'}
+              />
             </div>
             <p className="text-[10px] text-muted-foreground mt-0.5">
               En {totalCount} {totalCount === 1 ? 'fondo' : 'fondos'} totales
@@ -100,7 +104,10 @@ export function SavingSummaryCards({ summary, isLoading }: SavingSummaryCardsPro
               )}
               title={formattedGoal}
             >
-              {formattedGoal}
+              <AnimatedAmount
+                value={totalGoal}
+                prefix={currency === 'EUR' ? '€' : '$'}
+              />
             </div>
             <p className="text-[10px] text-muted-foreground mt-0.5">
               En metas activas

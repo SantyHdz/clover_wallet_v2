@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateSavingContribution } from '@/hooks/use-savings';
@@ -31,12 +32,7 @@ import { formatMoney } from '@/lib/utils';
 import { CategoryIcon } from '@/lib/category-icons';
 
 const contributionSchema = z.object({
-  amount: z
-    .string()
-    .min(1, 'Ingresa un monto')
-    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-      message: 'El aporte debe ser mayor a 0',
-    }),
+  amount: z.number().positive('El aporte debe ser mayor a 0'),
   contribution_date: z.string().min(1, 'Selecciona una fecha'),
   note: z.string().max(200, 'Máximo 200 caracteres').optional(),
 });
@@ -64,6 +60,7 @@ export function SavingContributionDialog({
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     reset,
@@ -71,18 +68,18 @@ export function SavingContributionDialog({
   } = useForm<ContributionFormValues>({
     resolver: zodResolver(contributionSchema),
     defaultValues: {
-      amount: '',
+      amount: undefined,
       contribution_date: getTodayISO(),
       note: '',
     },
   });
 
-  const enteredAmount = parseFloat(watch('amount') || '0');
+  const enteredAmount = watch('amount') || 0;
 
   useEffect(() => {
     if (open) {
       reset({
-        amount: '',
+        amount: undefined,
         contribution_date: getTodayISO(),
         note: '',
       });
@@ -112,7 +109,7 @@ export function SavingContributionDialog({
       await createContributionMutation.mutateAsync({
         savingId: saving.id,
         payload: {
-          amount: parseFloat(values.amount),
+          amount: Number(values.amount),
           contribution_date: values.contribution_date,
           note: values.note?.trim() || undefined,
         },
@@ -185,20 +182,22 @@ export function SavingContributionDialog({
             <Label htmlFor="amount" className="text-xs font-semibold text-white">
               Monto a Aportar ({currencySymbol}) *
             </Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-semibold">
-                {currencySymbol}
-              </span>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                autoFocus
-                className="bg-[#121212] border-[#2E2E2E] text-white pl-7 text-base font-semibold focus-visible:ring-[#10B981]"
-                {...register('amount')}
-              />
-            </div>
+            <Controller
+              name="amount"
+              control={control}
+              render={({ field }) => (
+                <CurrencyInput
+                  id="amount"
+                  value={field.value ?? ''}
+                  onValueChange={(_, __, values) => {
+                    field.onChange(values?.float ?? undefined);
+                  }}
+                  placeholder="0.00"
+                  autoFocus
+                  error={!!errors.amount}
+                />
+              )}
+            />
             {errors.amount && (
               <p className="text-xs text-[#EF4444] font-medium">{errors.amount.message}</p>
             )}

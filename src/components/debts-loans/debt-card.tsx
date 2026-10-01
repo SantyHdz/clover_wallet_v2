@@ -23,6 +23,7 @@ import {
 import { Debt } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
 import { DebtStatusBadge } from './status-badge';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { cn } from '@/lib/utils';
 
 interface DebtCardProps {
@@ -139,7 +140,7 @@ export function DebtCard({ debt, onPay, onEdit, onDelete }: DebtCardProps) {
               Total Deuda
             </span>
             <span className="text-sm sm:text-base font-bold text-white truncate block">
-              {formatMoney(totalAmount)}
+              <AnimatedAmount value={totalAmount} currency={user?.currency} />
             </span>
           </div>
           <div className="text-right min-w-0">
@@ -147,7 +148,7 @@ export function DebtCard({ debt, onPay, onEdit, onDelete }: DebtCardProps) {
               Pendiente
             </span>
             <span className="text-sm sm:text-base font-bold text-[#F97316] truncate block">
-              {formatMoney(remainingAmount)}
+              <AnimatedAmount value={remainingAmount} currency={user?.currency} />
             </span>
           </div>
         </div>

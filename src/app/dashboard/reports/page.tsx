@@ -74,6 +74,7 @@ import {
 import { useTransactions } from '@/hooks/use-transactions';
 import { ExportReportDialog } from '@/components/reports/export-report-dialog';
 import { CategoryIcon } from '@/lib/category-icons';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 const MONTH_NAMES = [
@@ -278,7 +279,10 @@ export default function ReportsPage() {
                 )}
                 title={`+${currencySymbol}${formatAmount(totalIncome)}`}
               >
-                +{currencySymbol}{formatAmount(totalIncome)}
+                <AnimatedAmount
+                  value={totalIncome}
+                  prefix={`+${currencySymbol}`}
+                />
               </div>
             )}
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
@@ -309,7 +313,10 @@ export default function ReportsPage() {
                 )}
                 title={`-${currencySymbol}${formatAmount(totalExpense)}`}
               >
-                -{currencySymbol}{formatAmount(totalExpense)}
+                <AnimatedAmount
+                  value={totalExpense}
+                  prefix={`-${currencySymbol}`}
+                />
               </div>
             )}
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
@@ -341,7 +348,11 @@ export default function ReportsPage() {
                 )}
                 title={`${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}`}
               >
-                {balance >= 0 ? '+' : ''}{currencySymbol}{formatAmount(balance)}
+                <AnimatedAmount
+                  value={balance}
+                  prefix={currencySymbol}
+                  showSign={true}
+                />
               </div>
             )}
             <p className="text-[11px] text-muted-foreground mt-1">

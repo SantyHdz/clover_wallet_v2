@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -51,7 +52,7 @@ const savingSchema = z
       .min(2, 'El nombre debe tener al menos 2 caracteres')
       .max(80, 'El nombre no puede superar los 80 caracteres'),
     type: z.enum(['goal', 'free']),
-    target_amount: z.string().optional(),
+    target_amount: z.number().optional().nullable(),
     target_date: z.string().optional(),
     description: z.string().max(250, 'Máximo 250 caracteres').optional(),
     icon: z.string(),
@@ -61,8 +62,8 @@ const savingSchema = z
   .refine(
     (data) => {
       if (data.type === 'goal') {
-        const val = parseFloat(data.target_amount || '0');
-        return !isNaN(val) && val > 0;
+        const val = data.target_amount;
+        return typeof val === 'number' && !isNaN(val) && val > 0;
       }
       return true;
     },
@@ -97,6 +98,7 @@ export function SavingFormDialog({
 
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     watch,
@@ -107,7 +109,7 @@ export function SavingFormDialog({
     defaultValues: {
       name: '',
       type: 'goal',
-      target_amount: '',
+      target_amount: undefined,
       target_date: '',
       description: '',
       icon: 'piggybank',
@@ -129,8 +131,8 @@ export function SavingFormDialog({
           name: savingToEdit.name,
           type: savingToEdit.type || 'goal',
           target_amount: savingToEdit.target_amount
-            ? String(savingToEdit.target_amount)
-            : '',
+            ? Number(savingToEdit.target_amount)
+            : undefined,
           target_date: savingToEdit.target_date || '',
           description: savingToEdit.description || '',
           icon: savingToEdit.icon || 'piggybank',
@@ -141,7 +143,7 @@ export function SavingFormDialog({
         reset({
           name: '',
           type: 'goal',
-          target_amount: '',
+          target_amount: undefined,
           target_date: '',
           description: '',
           icon: 'piggybank',
@@ -168,7 +170,7 @@ export function SavingFormDialog({
       };
 
       if (values.type === 'goal' && values.target_amount) {
-        payload.target_amount = parseFloat(values.target_amount);
+        payload.target_amount = Number(values.target_amount);
         payload.target_date = values.target_date || undefined;
       } else {
         payload.target_amount = undefined;
@@ -281,19 +283,21 @@ export function SavingFormDialog({
                 <Label htmlFor="target_amount" className="text-xs font-semibold text-white">
                   Monto Objetivo ({currencySymbol}) *
                 </Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-semibold">
-                    {currencySymbol}
-                  </span>
-                  <Input
-                    id="target_amount"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    className="bg-[#121212] border-[#2E2E2E] text-white pl-7 focus-visible:ring-[#10B981]"
-                    {...register('target_amount')}
-                  />
-                </div>
+                <Controller
+                  name="target_amount"
+                  control={control}
+                  render={({ field }) => (
+                    <CurrencyInput
+                      id="target_amount"
+                      value={field.value ?? ''}
+                      onValueChange={(_, __, values) => {
+                        field.onChange(values?.float ?? undefined);
+                      }}
+                      placeholder="0.00"
+                      error={!!errors.target_amount}
+                    />
+                  )}
+                />
                 {errors.target_amount && (
                   <p className="text-xs text-[#EF4444] font-medium">
                     {errors.target_amount.message}

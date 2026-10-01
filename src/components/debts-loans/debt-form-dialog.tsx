@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Debt } from '@/types';
@@ -59,6 +60,7 @@ export function DebtFormDialog({
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<DebtFormValues>({
     resolver: zodResolver(debtSchema),
@@ -173,21 +175,23 @@ export function DebtFormDialog({
               <Label htmlFor="total_amount" className="text-xs font-semibold text-white">
                 Monto Total <span className="text-[#EF4444]">*</span>
               </Label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="total_amount"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  {...register('total_amount', { valueAsNumber: true })}
-                  className={cn(
-                    'h-10 rounded-xl border-[#2E2E2E] bg-[#121212] pl-9 text-sm font-bold text-white placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-[#F97316]',
-                    errors.total_amount && 'border-[#EF4444] focus-visible:ring-[#EF4444]'
-                  )}
-                />
-              </div>
+              <Controller
+                name="total_amount"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <CurrencyInput
+                    id="total_amount"
+                    prefix="$ "
+                    placeholder="0.00"
+                    value={!value ? '' : value}
+                    onValueChange={(_, __, values) => {
+                      onChange(values?.float ?? 0);
+                    }}
+                    error={!!errors.total_amount}
+                    className="h-10 rounded-xl border-[#2E2E2E] bg-[#121212] text-sm font-bold text-white placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-[#F97316]"
+                  />
+                )}
+              />
               {errors.total_amount && (
                 <p className="text-[11px] text-[#EF4444]">{errors.total_amount.message}</p>
               )}

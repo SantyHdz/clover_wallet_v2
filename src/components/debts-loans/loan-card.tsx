@@ -23,6 +23,7 @@ import {
 import { Loan } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
 import { LoanStatusBadge } from './status-badge';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { cn } from '@/lib/utils';
 
 interface LoanCardProps {
@@ -139,7 +140,7 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
               Total Prestado
             </span>
             <span className="text-sm sm:text-base font-bold text-white truncate block">
-              {formatMoney(totalAmount)}
+              <AnimatedAmount value={totalAmount} currency={user?.currency} />
             </span>
           </div>
           <div className="text-right min-w-0">
@@ -147,7 +148,7 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
               Por Cobrar
             </span>
             <span className="text-sm sm:text-base font-bold text-[#3B82F6] truncate block">
-              {formatMoney(remainingAmount)}
+              <AnimatedAmount value={remainingAmount} currency={user?.currency} />
             </span>
           </div>
         </div>

@@ -47,6 +47,7 @@ import { useReportsSummary } from '@/hooks/use-reports';
 import { useTransactions } from '@/hooks/use-transactions';
 import { useCategories } from '@/hooks/use-categories';
 import { CategoryIcon } from '@/lib/category-icons';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 export default function DashboardOverviewPage() {
@@ -175,7 +176,10 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`+${currencySymbol}${formatAmount(totalIncome)}`}
               >
-                +{currencySymbol}{formatAmount(totalIncome)}
+                <AnimatedAmount
+                  value={totalIncome}
+                  prefix={`+${currencySymbol}`}
+                />
               </div>
             )}
             <div className="flex items-center gap-1.5 text-xs text-[#22C55E]">
@@ -210,7 +214,10 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`-${currencySymbol}${formatAmount(totalExpense)}`}
               >
-                -{currencySymbol}{formatAmount(totalExpense)}
+                <AnimatedAmount
+                  value={totalExpense}
+                  prefix={`-${currencySymbol}`}
+                />
               </div>
             )}
             <div className="flex items-center gap-1.5 text-xs text-[#EF4444]">
@@ -245,7 +252,10 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`${currencySymbol}${formatAmount(totalDebtPending)}`}
               >
-                {currencySymbol}{formatAmount(totalDebtPending)}
+                <AnimatedAmount
+                  value={totalDebtPending}
+                  prefix={currencySymbol}
+                />
               </div>
             )}
             <div>
@@ -283,7 +293,10 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`${currencySymbol}${formatAmount(totalLoanPending)}`}
               >
-                {currencySymbol}{formatAmount(totalLoanPending)}
+                <AnimatedAmount
+                  value={totalLoanPending}
+                  prefix={currencySymbol}
+                />
               </div>
             )}
             <div>
@@ -365,7 +378,11 @@ export default function DashboardOverviewPage() {
                         )}
                         title={`${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}`}
                       >
-                        {balance >= 0 ? '+' : ''}{currencySymbol}{formatAmount(balance)}
+                        <AnimatedAmount
+                          value={balance}
+                          prefix={currencySymbol}
+                          showSign={true}
+                        />
                       </div>
                     )}
                   </div>
@@ -385,7 +402,10 @@ export default function DashboardOverviewPage() {
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#121212] border border-[#2E2E2E]">
                   <span className="text-muted-foreground">Deudas por liquidar</span>
                   <span className="font-semibold text-[#F97316]">
-                    {currencySymbol}{formatAmount(totalDebtPending)}
+                    <AnimatedAmount
+                      value={totalDebtPending}
+                      prefix={currencySymbol}
+                    />
                   </span>
                 </div>
               </div>

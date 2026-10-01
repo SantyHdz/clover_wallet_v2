@@ -260,7 +260,11 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
   - **Contexto & Persistencia (`src/contexts/notifications-context.tsx`)**: `NotificationsContext` y hook `useNotifications` con persistencia en `localStorage` particionada por usuario (`clover_notifications_${userId}`).
   - **Componente UI (`src/components/layout/notification-bell.tsx`)**: Popover flotante con diseño dark escandinavo (`#121212` / `#1E1E1E` / `#10B981`), `Badge` con contador de no leídas (`9+`), pestañas *"Todas"* / *"No leídas"*, botones de acción rápida (*Marcar todas como leídas*, *Limpiar historial*, *Silenciar/Activar sonido*) y redirección al hacer clic.
   - **Integración en Header (`src/components/layout/header.tsx`)**: Campana reactiva ubicada en la barra superior junto al badge de moneda y menú de perfil.
-  - **Sincronización Total con Mutaciones**: Disparo unificado (Toast Sonner + Registro en campana + Chime sutil) en `useTransactions`, `useDebts`, `useLoans`, `useSavings` y `useCategories`.
+- [x] **Paso 12: Animación de Cifras Dinámicas (NumberFlow) & Máscaras de Moneda Inteligentes**
+  - **Animación Odométrica (`@number-flow/react`)**: Componente `AnimatedAmount` (`src/components/common/animated-amount.tsx`) que anima las cifras numéricas tanto en la carga inicial (`animateOnMount`) como en cambios reactivos de estado (odómetro continuo suave con soporte de monedas USD/EUR, signos semánticos `+`/`-`, y auto-escalado tipográfico anti-desbordamiento).
+  - **Despliegue Global de `AnimatedAmount`**: Integrado en los KPIs de Dashboard general, Resumen de Transacciones, Resumen y tarjetas de Deudas/Préstamos, Resumen y tarjetas de Ahorros/Metas, y Reportes mensuales.
+  - **Máscara Inteligente de Moneda (`react-currency-input-field`)**: Componente `CurrencyInput` (`src/components/ui/currency-input.tsx`) estilizado en Dark Theme Escandinavo (`#121212` / `#1E1E1E` / `#2E2E2E` / `#10B981`) con separación automática de miles (`,`) y decimales (`.`).
+  - **Integración React Hook Form en Formularios Financieros**: Implementado con `Controller` en modales de creación/edición de Transacciones (`TransactionFormDialog`), Deudas (`DebtFormDialog`), Préstamos (`LoanFormDialog`), Abonos a Deudas (`DebtPaymentDialog`), Cobros de Préstamos (`LoanPaymentDialog`), Metas de Ahorro (`SavingFormDialog`), y Aportes a Metas (`SavingContributionDialog`).
 
 
 

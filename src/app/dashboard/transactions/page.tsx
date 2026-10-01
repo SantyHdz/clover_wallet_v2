@@ -20,6 +20,7 @@ import { TransactionCard } from '@/components/transactions/transaction-card';
 import { TransactionFilters } from '@/components/transactions/transaction-filters';
 import { TransactionFormDialog } from '@/components/transactions/transaction-form-dialog';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 export default function TransactionsPage() {
@@ -166,7 +167,10 @@ export default function TransactionsPage() {
                 )}
                 title={`+${currencySymbol}${formatAmount(metrics.income)}`}
               >
-                +{currencySymbol}{formatAmount(metrics.income)}
+                <AnimatedAmount
+                  value={metrics.income}
+                  prefix={`+${currencySymbol}`}
+                />
               </div>
             </div>
             <div className="h-8 w-8 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E] shrink-0">
@@ -187,7 +191,10 @@ export default function TransactionsPage() {
                 )}
                 title={`-${currencySymbol}${formatAmount(metrics.expense)}`}
               >
-                -{currencySymbol}{formatAmount(metrics.expense)}
+                <AnimatedAmount
+                  value={metrics.expense}
+                  prefix={`-${currencySymbol}`}
+                />
               </div>
             </div>
             <div className="h-8 w-8 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center text-[#EF4444] shrink-0">
@@ -209,7 +216,11 @@ export default function TransactionsPage() {
                 )}
                 title={`${metrics.net >= 0 ? '+' : ''}${currencySymbol}${formatAmount(metrics.net)}`}
               >
-                {metrics.net >= 0 ? '+' : ''}{currencySymbol}{formatAmount(metrics.net)}
+                <AnimatedAmount
+                  value={metrics.net}
+                  prefix={currencySymbol}
+                  showSign={true}
+                />
               </div>
             </div>
             <div className="h-8 w-8 rounded-lg bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] shrink-0">

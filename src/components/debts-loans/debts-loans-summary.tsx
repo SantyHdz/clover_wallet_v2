@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { cn, getAmountFontSize } from '@/lib/utils';
+import { AnimatedAmount } from '@/components/common/animated-amount';
 
 interface DebtsLoansSummaryProps {
   type: 'debts' | 'loans';
@@ -58,7 +59,10 @@ export function DebtsLoansSummary({
               )}
               title={formatMoney(totalAmount)}
             >
-              {formatMoney(totalAmount)}
+              <AnimatedAmount
+                value={totalAmount}
+                prefix={currencySymbol}
+              />
             </div>
             <span className="text-[10px] text-muted-foreground mt-0.5 block truncate">
               {count} {count === 1 ? (isDebts ? 'deuda registrada' : 'préstamo registrado') : (isDebts ? 'deudas registradas' : 'préstamos registrados')}
@@ -91,7 +95,10 @@ export function DebtsLoansSummary({
               )}
               title={formatMoney(completedAmount)}
             >
-              {formatMoney(completedAmount)}
+              <AnimatedAmount
+                value={completedAmount}
+                prefix={currencySymbol}
+              />
             </div>
             <div className="mt-1 flex items-center gap-1.5">
               <div className="h-1.5 flex-1 bg-[#27272A] rounded-full overflow-hidden">
@@ -133,7 +140,10 @@ export function DebtsLoansSummary({
               )}
               title={formatMoney(pendingAmount)}
             >
-              {formatMoney(pendingAmount)}
+              <AnimatedAmount
+                value={pendingAmount}
+                prefix={currencySymbol}
+              />
             </div>
             <span className="text-[10px] text-muted-foreground mt-0.5 block truncate">
               {pendingAmount === 0 ? '¡Al día! Todo saldado' : 'Pendiente de liquidación'}
