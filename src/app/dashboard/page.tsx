@@ -36,7 +36,7 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
+  TableHead, 
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
@@ -132,7 +132,7 @@ export default function DashboardOverviewPage() {
                   className="bg-[#10B981] text-white hover:bg-[#059669] shadow-md shadow-[#10B981]/25 font-medium cursor-pointer"
                 >
                   <Plus className="mr-1.5 h-4 w-4" />
-                  Nueva Transacción
+                  Nueva Transaccion
                 </Button>
               </Link>
               <Link href="/dashboard/reports">
