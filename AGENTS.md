@@ -255,6 +255,13 @@ Fondo oscuro neutro `#121212` con superficies `#1E1E1E` para eliminar fatiga vis
   - **Frontend (`api-client.ts`)**: Timeout ampliado a 60,000 ms para tolerar arranques en frío de Render en free tier.
   - **Wake-Up Silencioso (`BackendWakeUp`)**: Disparo temprano de `/health` en el montaje del frontend dentro de `AppProviders`.
   - **Feedback Dinámico de Conexión**: Estados de carga amigables tras 2.5s en `DashboardLayout` y tras 3.0s en `LoginPage` ("Despertando servidor...") con temporizadores con limpieza automática.
+- [x] **Paso 11: Centro de Notificaciones (Notification Bell) en Header & Web Audio API**
+  - **Sintetizador Web Audio API (`src/lib/sound.ts`)**: Generador nativo de audio tipo *chime* fintech con osciladores sinusoidales y envolvente exponencial (0 dependencias externas, cero latencia, tonos para creación, actualización, eliminación y pagos con control de mute persistido).
+  - **Contexto & Persistencia (`src/contexts/notifications-context.tsx`)**: `NotificationsContext` y hook `useNotifications` con persistencia en `localStorage` particionada por usuario (`clover_notifications_${userId}`).
+  - **Componente UI (`src/components/layout/notification-bell.tsx`)**: Popover flotante con diseño dark escandinavo (`#121212` / `#1E1E1E` / `#10B981`), `Badge` con contador de no leídas (`9+`), pestañas *"Todas"* / *"No leídas"*, botones de acción rápida (*Marcar todas como leídas*, *Limpiar historial*, *Silenciar/Activar sonido*) y redirección al hacer clic.
+  - **Integración en Header (`src/components/layout/header.tsx`)**: Campana reactiva ubicada en la barra superior junto al badge de moneda y menú de perfil.
+  - **Sincronización Total con Mutaciones**: Disparo unificado (Toast Sonner + Registro en campana + Chime sutil) en `useTransactions`, `useDebts`, `useLoans`, `useSavings` y `useCategories`.
+
 
 
 

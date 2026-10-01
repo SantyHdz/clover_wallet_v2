@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useAuth } from '@/contexts/auth-context';
 import { SearchCommandDialog } from '@/components/layout/search-command-dialog';
+import { NotificationBell } from '@/components/layout/notification-bell';
 
 interface HeaderProps {
   onOpenMobileDrawer?: () => void;
@@ -157,9 +158,9 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
         </div>
 
         {/* ─────────────────────────────────────────────────────────────
-            3. RIGHT: SEARCH (MOBILE ICON), CURRENCY & USER DROPDOWN
+            3. RIGHT: SEARCH (MOBILE ICON), NOTIFICATIONS, CURRENCY & USER DROPDOWN
         ───────────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Mobile Search Button */}
           <Button
             variant="ghost"
@@ -169,6 +170,9 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
           >
             <Search className="h-4 w-4" />
           </Button>
+
+          {/* Notification Bell */}
+          <NotificationBell />
 
           {/* Currency Badge */}
           {user?.currency && (

@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { formatAmount } from '@/lib/utils';
+import { useNotifications } from '@/contexts/notifications-context';
 import loansService from '@/lib/loans-service';
 import {
   CreateLoanPayload,
@@ -51,13 +52,21 @@ export function useLoanPayments(loanId?: string) {
  */
 export function useCreateLoan() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (payload: CreateLoanPayload) => loansService.createLoan(payload),
     onSuccess: (newLoan) => {
       queryClient.invalidateQueries({ queryKey: LOANS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success(`Préstamo a ${newLoan.debtor_name} registrado exitosamente`);
+      notify({
+        title: 'Préstamo Registrado',
+        message: `Préstamo a ${newLoan.debtor_name} por $${formatAmount(newLoan.total_amount)} registrado`,
+        type: 'loan',
+        actionType: 'create',
+        link: '/dashboard/debts-loans',
+        amount: newLoan.total_amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -74,6 +83,7 @@ export function useCreateLoan() {
  */
 export function useUpdateLoan() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: ({
@@ -86,7 +96,13 @@ export function useUpdateLoan() {
     onSuccess: (updatedLoan) => {
       queryClient.invalidateQueries({ queryKey: LOANS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success(`Préstamo a ${updatedLoan.debtor_name} actualizado`);
+      notify({
+        title: 'Préstamo Actualizado',
+        message: `Préstamo a ${updatedLoan.debtor_name} modificado`,
+        type: 'loan',
+        actionType: 'update',
+        link: '/dashboard/debts-loans',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -103,13 +119,20 @@ export function useUpdateLoan() {
  */
 export function useDeleteLoan() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (id: string) => loansService.deleteLoan(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LOANS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success('Préstamo eliminado correctamente');
+      notify({
+        title: 'Préstamo Eliminado',
+        message: 'El préstamo ha sido removido del registro',
+        type: 'loan',
+        actionType: 'delete',
+        link: '/dashboard/debts-loans',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -126,6 +149,7 @@ export function useDeleteLoan() {
  */
 export function useCreateLoanPayment(loanId: string) {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (payload: CreateLoanPaymentPayload) =>
@@ -134,7 +158,14 @@ export function useCreateLoanPayment(loanId: string) {
       queryClient.invalidateQueries({ queryKey: LOANS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: [...LOANS_QUERY_KEY, loanId, 'payments'] });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success(`Cobro de $${formatAmount(payment.amount)} registrado con éxito`);
+      notify({
+        title: 'Cobro de Préstamo Registrado',
+        message: `Se registró un cobro de $${formatAmount(payment.amount)}`,
+        type: 'loan',
+        actionType: 'payment',
+        link: '/dashboard/debts-loans',
+        amount: payment.amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -151,6 +182,7 @@ export function useCreateLoanPayment(loanId: string) {
  */
 export function useDeleteLoanPayment(loanId: string) {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (paymentId: string) =>
@@ -159,7 +191,13 @@ export function useDeleteLoanPayment(loanId: string) {
       queryClient.invalidateQueries({ queryKey: LOANS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: [...LOANS_QUERY_KEY, loanId, 'payments'] });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success('Cobro revertido / eliminado');
+      notify({
+        title: 'Cobro Revertido',
+        message: 'El cobro ha sido revertido',
+        type: 'loan',
+        actionType: 'delete',
+        link: '/dashboard/debts-loans',
+      });
     },
     onError: (error: any) => {
       const message =

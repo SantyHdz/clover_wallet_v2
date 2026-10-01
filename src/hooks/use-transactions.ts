@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { formatAmount } from '@/lib/utils';
+import { useNotifications } from '@/contexts/notifications-context';
 import transactionsService from '@/lib/transactions-service';
 import {
   CreateTransactionPayload,
@@ -39,6 +40,7 @@ export function useTransaction(id?: string) {
  */
 export function useCreateTransaction() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (payload: CreateTransactionPayload) =>
@@ -46,8 +48,17 @@ export function useCreateTransaction() {
     onSuccess: (newTx) => {
       queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      const typeLabel = newTx.type === 'income' ? 'Ingreso' : 'Gasto';
-      toast.success(`${typeLabel} de $${formatAmount(newTx.amount)} registrado correctamente`);
+      const isIncome = newTx.type === 'income';
+      notify({
+        title: isIncome ? 'Ingreso Registrado' : 'Gasto Registrado',
+        message: `${isIncome ? 'Ingreso' : 'Gasto'} de $${formatAmount(newTx.amount)}${
+          newTx.description ? ` (${newTx.description})` : ''
+        }`,
+        type: 'transaction',
+        actionType: 'create',
+        link: '/dashboard/transactions',
+        amount: newTx.amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -64,6 +75,7 @@ export function useCreateTransaction() {
  */
 export function useUpdateTransaction() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: ({
@@ -76,7 +88,14 @@ export function useUpdateTransaction() {
     onSuccess: (updatedTx) => {
       queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success('Transacción actualizada con éxito');
+      notify({
+        title: 'Transacción Actualizada',
+        message: `Movimiento de $${formatAmount(updatedTx.amount)} modificado correctamente`,
+        type: 'transaction',
+        actionType: 'update',
+        link: '/dashboard/transactions',
+        amount: updatedTx.amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -93,13 +112,20 @@ export function useUpdateTransaction() {
  */
 export function useDeleteTransaction() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (id: string) => transactionsService.deleteTransaction(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success('Transacción eliminada correctamente');
+      notify({
+        title: 'Transacción Eliminada',
+        message: 'El movimiento ha sido removido de tu historial',
+        type: 'transaction',
+        actionType: 'delete',
+        link: '/dashboard/transactions',
+      });
     },
     onError: (error: any) => {
       const message =

@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { formatAmount } from '@/lib/utils';
+import { useNotifications } from '@/contexts/notifications-context';
 import debtsService from '@/lib/debts-service';
 import {
   CreateDebtPayload,
@@ -51,13 +52,21 @@ export function useDebtPayments(debtId?: string) {
  */
 export function useCreateDebt() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (payload: CreateDebtPayload) => debtsService.createDebt(payload),
     onSuccess: (newDebt) => {
       queryClient.invalidateQueries({ queryKey: DEBTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success(`Deuda con ${newDebt.creditor_name} registrada exitosamente`);
+      notify({
+        title: 'Deuda Registrada',
+        message: `Deuda con ${newDebt.creditor_name} por $${formatAmount(newDebt.total_amount)} registrada`,
+        type: 'debt',
+        actionType: 'create',
+        link: '/dashboard/debts-loans',
+        amount: newDebt.total_amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -74,6 +83,7 @@ export function useCreateDebt() {
  */
 export function useUpdateDebt() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: ({
@@ -86,7 +96,13 @@ export function useUpdateDebt() {
     onSuccess: (updatedDebt) => {
       queryClient.invalidateQueries({ queryKey: DEBTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success(`Deuda con ${updatedDebt.creditor_name} actualizada`);
+      notify({
+        title: 'Deuda Actualizada',
+        message: `Deuda con ${updatedDebt.creditor_name} actualizada`,
+        type: 'debt',
+        actionType: 'update',
+        link: '/dashboard/debts-loans',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -103,13 +119,20 @@ export function useUpdateDebt() {
  */
 export function useDeleteDebt() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (id: string) => debtsService.deleteDebt(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DEBTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success('Deuda eliminada correctamente');
+      notify({
+        title: 'Deuda Eliminada',
+        message: 'La deuda ha sido removida del registro',
+        type: 'debt',
+        actionType: 'delete',
+        link: '/dashboard/debts-loans',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -126,6 +149,7 @@ export function useDeleteDebt() {
  */
 export function useCreateDebtPayment(debtId: string) {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (payload: CreateDebtPaymentPayload) =>
@@ -134,7 +158,14 @@ export function useCreateDebtPayment(debtId: string) {
       queryClient.invalidateQueries({ queryKey: DEBTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: [...DEBTS_QUERY_KEY, debtId, 'payments'] });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success(`Abono de $${formatAmount(payment.amount)} registrado`);
+      notify({
+        title: 'Abono a Deuda Registrado',
+        message: `Se registró un abono de $${formatAmount(payment.amount)}`,
+        type: 'debt',
+        actionType: 'payment',
+        link: '/dashboard/debts-loans',
+        amount: payment.amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -151,6 +182,7 @@ export function useCreateDebtPayment(debtId: string) {
  */
 export function useDeleteDebtPayment(debtId: string) {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (paymentId: string) =>
@@ -159,7 +191,13 @@ export function useDeleteDebtPayment(debtId: string) {
       queryClient.invalidateQueries({ queryKey: DEBTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: [...DEBTS_QUERY_KEY, debtId, 'payments'] });
       queryClient.invalidateQueries({ queryKey: ['reports-summary'] });
-      toast.success('Abono revertido / eliminado');
+      notify({
+        title: 'Abono Eliminado',
+        message: 'El abono ha sido revertido',
+        type: 'debt',
+        actionType: 'delete',
+        link: '/dashboard/debts-loans',
+      });
     },
     onError: (error: any) => {
       const message =

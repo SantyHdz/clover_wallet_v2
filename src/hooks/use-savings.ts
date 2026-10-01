@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { formatAmount } from '@/lib/utils';
+import { useNotifications } from '@/contexts/notifications-context';
 import savingsService from '@/lib/savings-service';
 import {
   CreateSavingPayload,
@@ -64,6 +65,7 @@ export function useSaving(id?: string) {
  */
 export function useCreateSaving() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (payload: CreateSavingPayload) => savingsService.createSaving(payload),
@@ -71,7 +73,13 @@ export function useCreateSaving() {
       queryClient.invalidateQueries({ queryKey: SAVINGS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: SAVINGS_SUMMARY_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: SAVINGS_PROJECTIONS_QUERY_KEY });
-      toast.success(`Meta "${newSaving.name}" creada con éxito`);
+      notify({
+        title: 'Meta de Ahorro Creada',
+        message: `Meta "${newSaving.name}" creada exitosamente`,
+        type: 'saving',
+        actionType: 'create',
+        link: '/dashboard/savings',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -88,6 +96,7 @@ export function useCreateSaving() {
  */
 export function useUpdateSaving() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateSavingPayload }) =>
@@ -96,7 +105,13 @@ export function useUpdateSaving() {
       queryClient.invalidateQueries({ queryKey: SAVINGS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: SAVINGS_SUMMARY_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: SAVINGS_PROJECTIONS_QUERY_KEY });
-      toast.success(`Meta "${updated.name}" actualizada correctamente`);
+      notify({
+        title: 'Meta Actualizada',
+        message: `Meta "${updated.name}" modificada correctamente`,
+        type: 'saving',
+        actionType: 'update',
+        link: '/dashboard/savings',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -113,6 +128,7 @@ export function useUpdateSaving() {
  */
 export function useDeleteSaving() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: (id: string) => savingsService.deleteSaving(id),
@@ -120,7 +136,13 @@ export function useDeleteSaving() {
       queryClient.invalidateQueries({ queryKey: SAVINGS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: SAVINGS_SUMMARY_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: SAVINGS_PROJECTIONS_QUERY_KEY });
-      toast.success('Meta de ahorro eliminada');
+      notify({
+        title: 'Meta Eliminada',
+        message: 'La meta de ahorro fue removida',
+        type: 'saving',
+        actionType: 'delete',
+        link: '/dashboard/savings',
+      });
     },
     onError: (error: any) => {
       const message =
@@ -148,6 +170,7 @@ export function useSavingContributions(savingId?: string) {
  */
 export function useCreateSavingContribution() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: ({
@@ -167,9 +190,14 @@ export function useCreateSavingContribution() {
       queryClient.invalidateQueries({
         queryKey: ['saving-monthly', variables.savingId],
       });
-      toast.success(
-        `Aporte de $${formatAmount(newContribution.amount)} registrado con éxito`
-      );
+      notify({
+        title: 'Aporte Registrado',
+        message: `Se aportaron $${formatAmount(newContribution.amount)} a la meta`,
+        type: 'saving',
+        actionType: 'contribution',
+        link: '/dashboard/savings',
+        amount: newContribution.amount,
+      });
     },
     onError: (error: any) => {
       const message =
@@ -186,6 +214,7 @@ export function useCreateSavingContribution() {
  */
 export function useDeleteSavingContribution() {
   const queryClient = useQueryClient();
+  const { notify } = useNotifications();
 
   return useMutation({
     mutationFn: ({
@@ -205,7 +234,13 @@ export function useDeleteSavingContribution() {
       queryClient.invalidateQueries({
         queryKey: ['saving-monthly', variables.savingId],
       });
-      toast.success('Aporte eliminado correctamente');
+      notify({
+        title: 'Aporte Revertido',
+        message: 'El aporte ha sido eliminado',
+        type: 'saving',
+        actionType: 'delete',
+        link: '/dashboard/savings',
+      });
     },
     onError: (error: any) => {
       const message =
