@@ -1,6 +1,26 @@
-import apiClient, { setStoredToken, removeStoredToken } from './api-client';
+import apiClient, { setStoredToken, removeStoredToken, getStoredToken } from './api-client';
 import { supabase } from './supabase-client';
 import { AuthResponse, LoginPayload, RegisterPayload, User } from '@/types';
+
+export function getEmailFromJwt(token?: string | null): string | null {
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const parsed = JSON.parse(jsonPayload);
+    return parsed.email || null;
+  } catch {
+    return null;
+  }
+}
 
 export const authService = {
   // Iniciar sesión con email y contraseña
@@ -55,7 +75,23 @@ export const authService = {
   // Obtener el perfil del usuario autenticado
   async getCurrentUser(): Promise<User> {
     const response = await apiClient.get<User>('/users/me');
-    return response.data;
+    const token = getStoredToken();
+    const tokenEmail = getEmailFromJwt(token);
+
+    let email = response.data.email || tokenEmail;
+    if (!email) {
+      try {
+        const { data } = await supabase.auth.getUser();
+        email = data.user?.email || null;
+      } catch {
+        // Ignorar si no hay sesión de Supabase
+      }
+    }
+
+    return {
+      ...response.data,
+      email: email || undefined,
+    };
   },
 
   // Cerrar sesión

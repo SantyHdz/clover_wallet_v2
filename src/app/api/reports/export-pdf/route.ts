@@ -68,36 +68,49 @@ export async function POST(req: NextRequest) {
 
     // Generate HTML for Monthly Table (Annual report)
     const monthlyRowsHtml = monthlyData
-      .map((item) => {
+      .map((item, idx) => {
         const mName = MONTH_NAMES[item.month - 1] || `Mes ${item.month}`;
         const bal = Number(item.balance || 0);
-        const balColor = bal >= 0 ? '#10B981' : '#EF4444';
+        const balColor = bal >= 0 ? '#059669' : '#DC2626';
+        const bgStyle = idx % 2 === 1 ? 'background-color: #F8FAFC;' : 'background-color: #FFFFFF;';
         return `
-          <tr>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; font-weight: 600; color: #FFFFFF;">${mName}</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; text-align: right; color: #22C55E; font-family: monospace;">+${currencySymbol}${formatAmount(item.total_income)}</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; text-align: right; color: #EF4444; font-family: monospace;">-${currencySymbol}${formatAmount(item.total_expense)}</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; text-align: right; color: ${balColor}; font-family: monospace; font-weight: 700;">${bal >= 0 ? '+' : ''}${currencySymbol}${formatAmount(bal)}</td>
+          <tr style="${bgStyle}">
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; font-weight: 600; color: #1E293B;">${mName}</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; color: #16A34A; font-family: monospace; font-weight: 600;">+${currencySymbol}${formatAmount(item.total_income)}</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; color: #DC2626; font-family: monospace; font-weight: 600;">-${currencySymbol}${formatAmount(item.total_expense)}</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; color: ${balColor}; font-family: monospace; font-weight: 700;">${bal >= 0 ? '+' : ''}${currencySymbol}${formatAmount(bal)}</td>
           </tr>
         `;
       })
       .join('');
 
     // Generate HTML for Breakdown Table
+    const totalBreakdownAmount = breakdown.reduce((sum, item) => sum + Number(item.total ?? item.total_amount ?? 0), 0);
+
     const breakdownRowsHtml = breakdown
-      .map((cat) => {
+      .map((cat, idx) => {
         const color = cat.category_color || '#10B981';
+        const rawAmount = Number(cat.total ?? cat.total_amount ?? 0);
+        const percent = cat.percentage ?? (totalBreakdownAmount > 0 ? Math.round((rawAmount / totalBreakdownAmount) * 100) : 0);
+        const bgStyle = idx % 2 === 1 ? 'background-color: #F8FAFC;' : 'background-color: #FFFFFF;';
         return `
-          <tr>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; color: #FFFFFF;">
+          <tr style="${bgStyle}">
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; color: #1E293B;">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="width: 10px; height: 10px; border-radius: 50%; background-color: ${color}; display: inline-block;"></span>
-                <span style="font-weight: 500;">${cat.category_name}</span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background-color: ${color}; display: inline-block; flex-shrink: 0;"></span>
+                <span style="font-weight: 600; font-size: 11px;">${cat.category_name}</span>
               </div>
             </td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; text-align: center; color: #A1A1AA;">${cat.count} movs</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; text-align: right; color: #FFFFFF; font-family: monospace; font-weight: 700;">${currencySymbol}${formatAmount(cat.total_amount)}</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid #2E2E2E; text-align: right; color: #10B981; font-weight: 600;">${cat.percentage || 0}%</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; text-align: center; color: #64748B; font-size: 11px;">${cat.count} movs</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; color: #0F172A; font-family: monospace; font-weight: 700; font-size: 11px;">${currencySymbol}${formatAmount(rawAmount)}</td>
+            <td style="padding: 8px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; color: #059669; font-weight: 700; font-size: 11px;">
+              <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+                <div style="width: 45px; height: 6px; background-color: #E2E8F0; border-radius: 3px; overflow: hidden;">
+                  <div style="width: ${percent}%; height: 100%; background-color: #10B981; border-radius: 3px;"></div>
+                </div>
+                <span>${percent}%</span>
+              </div>
+            </td>
           </tr>
         `;
       })
@@ -105,16 +118,21 @@ export async function POST(req: NextRequest) {
 
     // Generate HTML for Transactions Table
     const transactionsRowsHtml = transactions
-      .slice(0, 30) // top 30 transactions
-      .map((tx) => {
+      .slice(0, 35) // top 35 transactions
+      .map((tx, idx) => {
         const isInc = tx.type === 'income';
-        const color = isInc ? '#22C55E' : '#EF4444';
+        const color = isInc ? '#16A34A' : '#DC2626';
+        const bgStyle = idx % 2 === 1 ? 'background-color: #F8FAFC;' : 'background-color: #FFFFFF;';
         return `
-          <tr>
-            <td style="padding: 8px 12px; border-bottom: 1px solid #2E2E2E; color: #A1A1AA; font-size: 11px;">${tx.transaction_date}</td>
-            <td style="padding: 8px 12px; border-bottom: 1px solid #2E2E2E; color: #FFFFFF; font-weight: 500;">${tx.description || 'Sin concepto'}</td>
-            <td style="padding: 8px 12px; border-bottom: 1px solid #2E2E2E; color: #A1A1AA; font-size: 11px;">${tx.category?.name || 'General'}</td>
-            <td style="padding: 8px 12px; border-bottom: 1px solid #2E2E2E; text-align: right; color: ${color}; font-family: monospace; font-weight: 700;">
+          <tr style="${bgStyle}">
+            <td style="padding: 7px 12px; border-bottom: 1px solid #E2E8F0; color: #64748B; font-size: 10px; font-family: monospace;">${tx.transaction_date}</td>
+            <td style="padding: 7px 12px; border-bottom: 1px solid #E2E8F0; color: #1E293B; font-weight: 600; font-size: 11px;">${tx.description || 'Sin concepto'}</td>
+            <td style="padding: 7px 12px; border-bottom: 1px solid #E2E8F0; color: #64748B; font-size: 10px;">
+              <span style="background-color: #F1F5F9; border: 1px solid #E2E8F0; padding: 2px 6px; border-radius: 4px;">
+                ${tx.category?.name || 'General'}
+              </span>
+            </td>
+            <td style="padding: 7px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; color: ${color}; font-family: monospace; font-weight: 700; font-size: 11px;">
               ${isInc ? '+' : '-'}${currencySymbol}${formatAmount(tx.amount)}
             </td>
           </tr>
@@ -131,7 +149,7 @@ export async function POST(req: NextRequest) {
         <style>
           @page {
             size: A4 portrait;
-            margin: 14mm 12mm 14mm 12mm;
+            margin: 10mm 12mm 10mm 12mm;
           }
           * {
             box-sizing: border-box;
@@ -140,109 +158,192 @@ export async function POST(req: NextRequest) {
           }
           body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212;
-            color: #F3F3F3;
+            background-color: #FFFFFF;
+            color: #0F172A;
             margin: 0;
             padding: 0;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.45;
+            position: relative;
           }
+
+          /* ── Marca de Agua Vectorizada de Clover ── */
+          .watermark-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 460px;
+            height: 460px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.038;
+          }
+
+          .content-wrapper {
+            position: relative;
+            z-index: 1;
+          }
+
+          /* ── Cabecera Ejecutiva ── */
+          .top-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+            border-radius: 2px;
+            margin-bottom: 16px;
+          }
+
           .header {
-            border-bottom: 2px solid #10B981;
-            padding-bottom: 14px;
-            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            padding-bottom: 14px;
+            border-bottom: 1.5px solid #E2E8F0;
+            margin-bottom: 16px;
           }
-          .brand {
+
+          .brand-box {
             display: flex;
             align-items: center;
             gap: 10px;
           }
-          .logo-badge {
-            background-color: #10B981;
-            color: #FFFFFF;
-            font-weight: 900;
-            font-size: 16px;
-            padding: 6px 12px;
-            border-radius: 8px;
-            letter-spacing: -0.5px;
+
+          .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
           }
+
           .brand-title {
             font-size: 18px;
             font-weight: 800;
-            color: #FFFFFF;
+            color: #0F172A;
+            letter-spacing: -0.5px;
             margin: 0;
           }
-          .brand-sub {
-            font-size: 11px;
+          .brand-title span {
             color: #10B981;
-            margin: 2px 0 0 0;
-            font-weight: 600;
           }
-          .meta-info {
+
+          .brand-sub {
+            font-size: 10px;
+            color: #64748B;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 2px 0 0 0;
+          }
+
+          .meta-box {
             text-align: right;
             font-size: 10px;
-            color: #A1A1AA;
+            color: #475569;
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            line-height: 1.5;
           }
-          .meta-info strong {
-            color: #FFFFFF;
+          .meta-box strong {
+            color: #0F172A;
           }
+          .meta-box .email {
+            color: #10B981;
+            font-weight: 600;
+          }
+
+          /* ── Título del Reporte ── */
           .report-heading {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
           }
           .report-heading h1 {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 800;
-            color: #FFFFFF;
-            margin: 0 0 4px 0;
+            color: #0F172A;
+            margin: 0 0 3px 0;
           }
           .report-heading p {
-            color: #A1A1AA;
-            font-size: 12px;
+            color: #64748B;
+            font-size: 11px;
             margin: 0;
           }
+          .badge-status {
+            background-color: #ECFDF5;
+            color: #059669;
+            border: 1px solid #A7F3D0;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+          }
+
+          /* ── KPIs Ejecutivos (4 Cards) ── */
           .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin-bottom: 22px;
+            margin-bottom: 16px;
           }
           .kpi-card {
-            background-color: #1E1E1E;
-            border: 1px solid #2E2E2E;
-            border-radius: 10px;
-            padding: 12px;
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px 12px;
           }
           .kpi-label {
-            font-size: 10px;
+            font-size: 9.5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #A1A1AA;
-            font-weight: 600;
-            margin-bottom: 6px;
+            color: #64748B;
+            font-weight: 700;
+            margin-bottom: 4px;
           }
           .kpi-value {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             font-family: monospace;
           }
           .kpi-sub {
             font-size: 9px;
-            color: #71717A;
-            margin-top: 4px;
+            color: #94A3B8;
+            margin-top: 2px;
           }
+
+          /* ── Deudas y Préstamos Summary ── */
+          .debts-loans-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+          }
+          .dl-card {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px 12px;
+          }
+
+          /* ── Tablas ── */
           .section {
-            margin-bottom: 22px;
+            margin-bottom: 16px;
+            page-break-inside: avoid;
           }
           .section-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
-            color: #FFFFFF;
-            margin: 0 0 10px 0;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #2E2E2E;
+            color: #0F172A;
+            margin: 0 0 8px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #E2E8F0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -250,221 +351,239 @@ export async function POST(req: NextRequest) {
           table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #1E1E1E;
-            border-radius: 8px;
+            background-color: #FFFFFF;
+            border-radius: 6px;
             overflow: hidden;
-            border: 1px solid #2E2E2E;
+            border: 1px solid #E2E8F0;
           }
           th {
-            background-color: #27272A;
-            color: #A1A1AA;
-            font-size: 10px;
+            background-color: #F1F5F9;
+            color: #475569;
+            font-size: 9.5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 8px 12px;
+            padding: 7px 12px;
             text-align: left;
-            font-weight: 600;
-            border-bottom: 1px solid #2E2E2E;
+            font-weight: 700;
+            border-bottom: 1px solid #CBD5E1;
           }
-          .debts-loans-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 22px;
-          }
-          .dl-card {
-            background-color: #1E1E1E;
-            border: 1px solid #2E2E2E;
-            border-radius: 10px;
-            padding: 12px;
-          }
+
+          /* ── Footer ── */
           .footer {
-            margin-top: 30px;
-            padding-top: 12px;
-            border-top: 1px solid #2E2E2E;
+            margin-top: 24px;
+            padding-top: 10px;
+            border-top: 1px solid #E2E8F0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
-            color: #71717A;
+            font-size: 9.5px;
+            color: #94A3B8;
           }
         </style>
       </head>
       <body>
-        <!-- Header -->
-        <div class="header">
-          <div class="brand">
-            <div class="logo-badge">☘ CLOVER</div>
+        <!-- Marca de Agua SVG de Clover en el Fondo -->
+        <div class="watermark-container">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 85C88 50 45 50 45 85C45 115 90 130 100 160C110 130 155 115 155 85C155 50 112 50 100 85Z" fill="#10B981" />
+            <path d="M85 100C50 88 50 45 85 45C115 45 130 90 160 100C130 110 115 155 85 155C50 155 50 112 85 100Z" fill="#10B981" />
+            <circle cx="100" cy="100" r="18" fill="#059669" />
+          </svg>
+        </div>
+
+        <div class="content-wrapper">
+          <!-- Línea de Acento Superior -->
+          <div class="top-bar"></div>
+
+          <!-- Cabecera Oficial -->
+          <div class="header">
+            <div class="brand-box">
+              <div class="brand-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4Z"/>
+                  <path d="M6 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4Z"/>
+                  <path d="M18 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4Z"/>
+                  <path d="M12 14a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4Z"/>
+                  <path d="M12 18v4"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="brand-title">Clover<span>Wallet</span></h2>
+                <p class="brand-sub">Sistema de Gestión Financiera & Balances</p>
+              </div>
+            </div>
+
+            <div class="meta-box">
+              <div>Titular: <strong>${userName}</strong></div>
+              <div>Correo: <span class="email">${userEmail || 'Cuenta Verificada'}</span></div>
+              <div>Periodo: <strong>${reportType === 'monthly' ? `${monthName} ${year}` : `Año ${year}`}</strong></div>
+              <div>Moneda: <strong>${currency.toUpperCase()}</strong> • Emisión: ${generationDate}</div>
+            </div>
+          </div>
+
+          <!-- Título y Estado -->
+          <div class="report-heading">
             <div>
-              <h2 class="brand-title">Clover Wallet</h2>
-              <p class="brand-sub">Sistema de Gestión & Salud Financiera</p>
+              <h1>${reportTitle}</h1>
+              <p>Informe financiero oficial consolidado con tecnología Clover Wallet.</p>
             </div>
-          </div>
-          <div class="meta-info">
-            <div>Usuario: <strong>${userName}</strong></div>
-            ${userEmail ? `<div>Email: ${userEmail}</div>` : ''}
-            <div>Fecha: ${generationDate}</div>
-            <div>Moneda: <strong>${currency}</strong></div>
-          </div>
-        </div>
-
-        <!-- Title -->
-        <div class="report-heading">
-          <h1>${reportTitle}</h1>
-          <p>Informe financiero detallado generado automáticamente con tecnología Clover Wallet.</p>
-        </div>
-
-        <!-- Main KPIs -->
-        <div class="kpi-grid">
-          <div class="kpi-card" style="border-left: 3px solid #22C55E;">
-            <div class="kpi-label">Total Ingresos</div>
-            <div class="kpi-value" style="color: #22C55E;">+${currencySymbol}${formatAmount(totalIncome)}</div>
-            <div class="kpi-sub">Entradas registradas</div>
-          </div>
-
-          <div class="kpi-card" style="border-left: 3px solid #EF4444;">
-            <div class="kpi-label">Total Gastos</div>
-            <div class="kpi-value" style="color: #EF4444;">-${currencySymbol}${formatAmount(totalExpense)}</div>
-            <div class="kpi-sub">Egresos computados</div>
-          </div>
-
-          <div class="kpi-card" style="border-left: 3px solid ${balance >= 0 ? '#10B981' : '#EF4444'};">
-            <div class="kpi-label">Balance Neto</div>
-            <div class="kpi-value" style="color: ${balance >= 0 ? '#10B981' : '#EF4444'};">
-              ${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}
-            </div>
-            <div class="kpi-sub">Diferencial neto</div>
-          </div>
-
-          <div class="kpi-card" style="border-left: 3px solid #3B82F6;">
-            <div class="kpi-label">Tasa de Ahorro</div>
-            <div class="kpi-value" style="color: #3B82F6;">${savingsRate}%</div>
-            <div class="kpi-sub">Capacidad retenida</div>
-          </div>
-        </div>
-
-        <!-- Deudas y Préstamos Summary -->
-        <div class="debts-loans-grid">
-          <div class="dl-card">
-            <div style="font-size: 11px; font-weight: 700; color: #F97316; text-transform: uppercase; margin-bottom: 8px;">
-              💳 Estado de Deudas
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span style="color: #A1A1AA;">Total Deuda:</span>
-              <strong style="color: #FFFFFF; font-family: monospace;">${currencySymbol}${formatAmount(totalDebt)}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span style="color: #A1A1AA;">Amortizado / Pagado:</span>
-              <strong style="color: #22C55E; font-family: monospace;">${currencySymbol}${formatAmount(totalDebtPaid)}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="color: #A1A1AA;">Saldo Pendiente:</span>
-              <strong style="color: #F97316; font-family: monospace;">${currencySymbol}${formatAmount(totalDebtPending)}</strong>
+            <div class="badge-status">
+              ✓ Balance Verificado
             </div>
           </div>
 
-          <div class="dl-card">
-            <div style="font-size: 11px; font-weight: 700; color: #3B82F6; text-transform: uppercase; margin-bottom: 8px;">
-              🤝 Estado de Préstamos
+          <!-- 4 KPIs Ejecutivos -->
+          <div class="kpi-grid">
+            <div class="kpi-card" style="border-top: 3px solid #16A34A;">
+              <div class="kpi-label">Total Ingresos</div>
+              <div class="kpi-value" style="color: #16A34A;">+${currencySymbol}${formatAmount(totalIncome)}</div>
+              <div class="kpi-sub">Entradas acumuladas</div>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span style="color: #A1A1AA;">Total Prestado:</span>
-              <strong style="color: #FFFFFF; font-family: monospace;">${currencySymbol}${formatAmount(totalLoan)}</strong>
+
+            <div class="kpi-card" style="border-top: 3px solid #DC2626;">
+              <div class="kpi-label">Total Gastos</div>
+              <div class="kpi-value" style="color: #DC2626;">-${currencySymbol}${formatAmount(totalExpense)}</div>
+              <div class="kpi-sub">Egresos computados</div>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span style="color: #A1A1AA;">Cobrado / Recuperado:</span>
-              <strong style="color: #22C55E; font-family: monospace;">${currencySymbol}${formatAmount(totalLoanRecovered)}</strong>
+
+            <div class="kpi-card" style="border-top: 3px solid ${balance >= 0 ? '#10B981' : '#DC2626'};">
+              <div class="kpi-label">Balance Neto</div>
+              <div class="kpi-value" style="color: ${balance >= 0 ? '#059669' : '#DC2626'};">
+                ${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}
+              </div>
+              <div class="kpi-sub">Diferencial de flujo</div>
             </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="color: #A1A1AA;">Saldo por Recuperar:</span>
-              <strong style="color: #3B82F6; font-family: monospace;">${currencySymbol}${formatAmount(totalLoanPending)}</strong>
+
+            <div class="kpi-card" style="border-top: 3px solid #2563EB;">
+              <div class="kpi-label">Tasa de Ahorro</div>
+              <div class="kpi-value" style="color: #2563EB;">${savingsRate}%</div>
+              <div class="kpi-sub">Retención neta</div>
             </div>
           </div>
-        </div>
 
-        ${
-          reportType === 'annual' && monthlyData.length > 0
-            ? `
-          <div class="section">
-            <div class="section-title">
-              <span>Evolución Mensual del Año ${year}</span>
-              <span style="font-size: 11px; color: #A1A1AA; font-weight: normal;">12 Meses Consolidados</span>
+          <!-- Deudas y Préstamos Summary -->
+          <div class="debts-loans-grid">
+            <div class="dl-card" style="border-left: 3px solid #EA580C;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #EA580C; text-transform: uppercase; margin-bottom: 6px;">
+                💳 Estado de Deudas (Por Pagar)
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                <span style="color: #64748B;">Total Deuda Registrada:</span>
+                <strong style="color: #0F172A; font-family: monospace;">${currencySymbol}${formatAmount(totalDebt)}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                <span style="color: #64748B;">Amortizado / Pagado:</span>
+                <strong style="color: #16A34A; font-family: monospace;">${currencySymbol}${formatAmount(totalDebtPaid)}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Saldo Pendiente por Liquidar:</span>
+                <strong style="color: #EA580C; font-family: monospace;">${currencySymbol}${formatAmount(totalDebtPending)}</strong>
+              </div>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Mes</th>
-                  <th style="text-align: right;">Ingresos</th>
-                  <th style="text-align: right;">Gastos</th>
-                  <th style="text-align: right;">Balance Neto</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${monthlyRowsHtml}
-              </tbody>
-            </table>
-          </div>
-        `
-            : ''
-        }
 
-        ${
-          breakdown.length > 0
-            ? `
-          <div class="section">
-            <div class="section-title">
-              <span>Desglose por Categoría (${reportType === 'monthly' ? monthName : `Año ${year}`})</span>
-              <span style="font-size: 11px; color: #A1A1AA; font-weight: normal;">${breakdown.length} Categorías con Movimiento</span>
+            <div class="dl-card" style="border-left: 3px solid #2563EB;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #2563EB; text-transform: uppercase; margin-bottom: 6px;">
+                🤝 Estado de Préstamos (Por Cobrar)
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                <span style="color: #64748B;">Total Prestado a Terceros:</span>
+                <strong style="color: #0F172A; font-family: monospace;">${currencySymbol}${formatAmount(totalLoan)}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                <span style="color: #64748B;">Cobrado / Recuperado:</span>
+                <strong style="color: #16A34A; font-family: monospace;">${currencySymbol}${formatAmount(totalLoanRecovered)}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Saldo por Recuperar:</span>
+                <strong style="color: #2563EB; font-family: monospace;">${currencySymbol}${formatAmount(totalLoanPending)}</strong>
+              </div>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Categoría</th>
-                  <th style="text-align: center;">Transacciones</th>
-                  <th style="text-align: right;">Monto Total</th>
-                  <th style="text-align: right;">Participación</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${breakdownRowsHtml}
-              </tbody>
-            </table>
           </div>
-        `
-            : ''
-        }
 
-        ${
-          reportType === 'monthly' && transactions.length > 0
-            ? `
-          <div class="section">
-            <div class="section-title">
-              <span>Movimientos de ${monthName} ${year} (Muestra de hasta 30 registros)</span>
-              <span style="font-size: 11px; color: #A1A1AA; font-weight: normal;">Total: ${transactions.length} transacciones</span>
+          ${
+            reportType === 'annual' && monthlyData.length > 0
+              ? `
+            <div class="section">
+              <div class="section-title">
+                <span>Evolución Mensual del Año ${year}</span>
+                <span style="font-size: 10px; color: #64748B; font-weight: normal;">12 Meses Consolidados</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mes</th>
+                    <th style="text-align: right;">Ingresos</th>
+                    <th style="text-align: right;">Gastos</th>
+                    <th style="text-align: right;">Balance Neto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${monthlyRowsHtml}
+                </tbody>
+              </table>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Concepto / Descripción</th>
-                  <th>Categoría</th>
-                  <th style="text-align: right;">Monto</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${transactionsRowsHtml}
-              </tbody>
-            </table>
-          </div>
-        `
-            : ''
-        }
+          `
+              : ''
+          }
 
-        <!-- Footer -->
-        <div class="footer">
-          <div>☘ Clover Wallet — Control Financiero Inteligente</div>
-          <div>Documento Confidencial generado por ${userName}</div>
-          <div>Página 1 de 1</div>
+          ${
+            breakdown.length > 0
+              ? `
+            <div class="section">
+              <div class="section-title">
+                <span>Desglose por Categoría (${reportType === 'monthly' ? monthName : `Año ${year}`})</span>
+                <span style="font-size: 10px; color: #64748B; font-weight: normal;">${breakdown.length} Categorías con Movimiento</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Categoría</th>
+                    <th style="text-align: center;">Transacciones</th>
+                    <th style="text-align: right;">Monto Total</th>
+                    <th style="text-align: right;">Participación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${breakdownRowsHtml}
+                </tbody>
+              </table>
+            </div>
+          `
+              : ''
+          }
+
+          ${
+            reportType === 'monthly' && transactions.length > 0
+              ? `
+            <div class="section">
+              <div class="section-title">
+                <span>Detalle de Movimientos — ${monthName} ${year}</span>
+                <span style="font-size: 10px; color: #64748B; font-weight: normal;">${Math.min(transactions.length, 35)} registros</span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Concepto / Descripción</th>
+                    <th>Categoría</th>
+                    <th style="text-align: right;">Monto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${transactionsRowsHtml}
+                </tbody>
+              </table>
+            </div>
+          `
+              : ''
+          }
+
+          <!-- Footer Oficial -->
+          <div class="footer">
+            <div>☘ <strong>Clover Wallet</strong> — Control Financiero Inteligente</div>
+            <div>Documento Confidencial emitido para <strong>${userName}</strong> (${userEmail || 'Titular'})</div>
+            <div>Página 1 de 1</div>
+          </div>
         </div>
       </body>
       </html>
@@ -484,10 +603,10 @@ export async function POST(req: NextRequest) {
       printBackground: true,
       preferCSSPageSize: true,
       margin: {
-        top: '12mm',
-        bottom: '12mm',
-        left: '12mm',
-        right: '12mm',
+        top: '0mm',
+        bottom: '0mm',
+        left: '0mm',
+        right: '0mm',
       },
     });
 

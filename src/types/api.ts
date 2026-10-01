@@ -265,11 +265,12 @@ export interface MonthlyReport {
 }
 
 export interface CategoryBreakdown {
-  category_id: string;
+  category_id?: string | null;
   category_name: string;
   category_icon?: string | null;
   category_color?: string | null;
-  total_amount: number;
+  total?: number;
+  total_amount?: number;
   count: number;
   percentage?: number;
 }

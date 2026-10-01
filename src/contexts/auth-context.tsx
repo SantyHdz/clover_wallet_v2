@@ -52,7 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authService.login(payload);
       const userData = await authService.getCurrentUser();
-      setUser(userData);
+      setUser({
+        ...userData,
+        email: userData.email || payload.email,
+      });
       router.push('/dashboard');
     } finally {
       setIsLoading(false);
@@ -64,7 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authService.register(payload);
       const userData = await authService.getCurrentUser();
-      setUser(userData);
+      setUser({
+        ...userData,
+        email: userData.email || payload.email,
+      });
       router.push('/dashboard');
     } finally {
       setIsLoading(false);

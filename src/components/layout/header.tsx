@@ -143,9 +143,15 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
           >
             <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <span className="truncate">Buscar transacciones, deudas...</span>
-            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-[#2E2E2E] bg-[#121212] px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-              ⌘K
-            </kbd>
+            <div className="ml-auto pointer-events-none flex items-center gap-1 select-none">
+              <kbd className="inline-flex h-5 items-center justify-center rounded-md border border-[#2E2E2E] bg-[#121212] px-1.5 font-mono text-[10px] font-semibold text-muted-foreground shadow-xs">
+                Ctrl
+              </kbd>
+              <span className="text-[10px] text-muted-foreground/60">+</span>
+              <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-md border border-[#2E2E2E] bg-[#121212] px-1.5 font-mono text-[10px] font-semibold text-muted-foreground shadow-xs">
+                K
+              </kbd>
+            </div>
           </button>
         </div>
 
@@ -202,7 +208,7 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
                   {user?.full_name || 'Usuario'}
                 </div>
                 <div className="text-[10px] text-muted-foreground truncate">
-                  {user?.email || 'clover@wallet.app'}
+                  {user?.email || 'Usuario Activo'}
                 </div>
               </DropdownMenuLabel>
 

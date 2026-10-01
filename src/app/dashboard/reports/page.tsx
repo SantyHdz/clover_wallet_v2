@@ -132,12 +132,13 @@ export default function ReportsPage() {
 
   // Normalized Breakdown data with colors and percentages
   const breakdownData = useMemo(() => {
-    const totalAmount = rawBreakdown.reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
+    const totalAmount = rawBreakdown.reduce((sum, item) => sum + Number(item.total ?? item.total_amount ?? 0), 0);
     return rawBreakdown.map((item, idx) => {
-      const amount = Number(item.total_amount || 0);
+      const amount = Number(item.total ?? item.total_amount ?? 0);
       const percentage = totalAmount > 0 ? Math.round((amount / totalAmount) * 100) : 0;
       return {
         ...item,
+        total: amount,
         total_amount: amount,
         percentage,
         fill: item.category_color || PIE_COLORS[idx % PIE_COLORS.length],
@@ -175,7 +176,8 @@ export default function ReportsPage() {
       },
     };
     breakdownData.forEach((item) => {
-      config[item.category_id] = {
+      const key = item.category_id || item.category_name || 'general';
+      config[key] = {
         label: item.category_name,
         color: item.fill,
       };
