@@ -16,14 +16,18 @@ import { useTransactions } from '@/hooks/use-transactions';
 import { useCategories } from '@/hooks/use-categories';
 import { useAuth } from '@/contexts/auth-context';
 import { TransactionsTable } from '@/components/transactions/transactions-table';
+import { TransactionCard } from '@/components/transactions/transaction-card';
 import { TransactionFilters } from '@/components/transactions/transaction-filters';
 import { TransactionFormDialog } from '@/components/transactions/transaction-form-dialog';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
-import { cn } from '@/lib/utils';
+import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 export default function TransactionsPage() {
   const { user } = useAuth();
   const { data: categories = [] } = useCategories();
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,13 +156,19 @@ export default function TransactionsPage() {
         {/* Total Ingresos */}
         <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm hover:border-[#22C55E]/40 transition-colors">
           <CardContent className="p-0 flex items-center justify-between">
-            <div>
+            <div className="min-w-0 flex-1 pr-1">
               <span className="text-[11px] text-muted-foreground font-medium">Ingresos Totales</span>
-              <div className="text-lg sm:text-xl font-bold text-[#22C55E] mt-0.5">
-                +{currencySymbol}{metrics.income.toFixed(2)}
+              <div
+                className={cn(
+                  'font-bold text-[#22C55E] mt-0.5 truncate',
+                  getAmountFontSize(`+${currencySymbol}${formatAmount(metrics.income)}`, '2xl')
+                )}
+                title={`+${currencySymbol}${formatAmount(metrics.income)}`}
+              >
+                +{currencySymbol}{formatAmount(metrics.income)}
               </div>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E]">
+            <div className="h-8 w-8 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center text-[#22C55E] shrink-0">
               <TrendingUp className="h-4 w-4" />
             </div>
           </CardContent>
@@ -167,13 +177,19 @@ export default function TransactionsPage() {
         {/* Total Gastos */}
         <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm hover:border-[#EF4444]/40 transition-colors">
           <CardContent className="p-0 flex items-center justify-between">
-            <div>
+            <div className="min-w-0 flex-1 pr-1">
               <span className="text-[11px] text-muted-foreground font-medium">Gastos Totales</span>
-              <div className="text-lg sm:text-xl font-bold text-[#EF4444] mt-0.5">
-                -{currencySymbol}{metrics.expense.toFixed(2)}
+              <div
+                className={cn(
+                  'font-bold text-[#EF4444] mt-0.5 truncate',
+                  getAmountFontSize(`-${currencySymbol}${formatAmount(metrics.expense)}`, '2xl')
+                )}
+                title={`-${currencySymbol}${formatAmount(metrics.expense)}`}
+              >
+                -{currencySymbol}{formatAmount(metrics.expense)}
               </div>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center text-[#EF4444]">
+            <div className="h-8 w-8 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center text-[#EF4444] shrink-0">
               <TrendingDown className="h-4 w-4" />
             </div>
           </CardContent>
@@ -182,18 +198,20 @@ export default function TransactionsPage() {
         {/* Balance Neto */}
         <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm hover:border-[#10B981]/40 transition-colors">
           <CardContent className="p-0 flex items-center justify-between">
-            <div>
+            <div className="min-w-0 flex-1 pr-1">
               <span className="text-[11px] text-muted-foreground font-medium">Balance Neto</span>
               <div
                 className={cn(
-                  'text-lg sm:text-xl font-bold mt-0.5',
-                  metrics.net >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'
+                  'font-bold mt-0.5 truncate',
+                  metrics.net >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]',
+                  getAmountFontSize(`${metrics.net >= 0 ? '+' : ''}${currencySymbol}${formatAmount(metrics.net)}`, '2xl')
                 )}
+                title={`${metrics.net >= 0 ? '+' : ''}${currencySymbol}${formatAmount(metrics.net)}`}
               >
-                {metrics.net >= 0 ? '+' : ''}{currencySymbol}{metrics.net.toFixed(2)}
+                {metrics.net >= 0 ? '+' : ''}{currencySymbol}{formatAmount(metrics.net)}
               </div>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981]">
+            <div className="h-8 w-8 rounded-lg bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] shrink-0">
               <DollarSign className="h-4 w-4" />
             </div>
           </CardContent>
@@ -208,7 +226,7 @@ export default function TransactionsPage() {
                 {metrics.count}
               </div>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-[#121212] border border-[#2E2E2E] flex items-center justify-center text-muted-foreground">
+            <div className="h-8 w-8 rounded-lg bg-[#121212] border border-[#2E2E2E] flex items-center justify-center text-muted-foreground shrink-0">
               <Wallet className="h-4 w-4" />
             </div>
           </CardContent>
@@ -232,20 +250,66 @@ export default function TransactionsPage() {
         categories={categories}
         onResetFilters={handleResetFilters}
         hasActiveFilters={hasActiveFilters}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       {/* ─────────────────────────────────────────────────────────────
-          4. TRANSACTIONS TABLE
+          4. TRANSACTIONS LIST (TABLE OR GRID CARDS)
       ───────────────────────────────────────────────────────────── */}
-      <TransactionsTable
-        transactions={filteredTransactions}
-        categories={categories}
-        isLoading={isLoading}
-        onEdit={handleOpenEdit}
-        onDelete={handleOpenDelete}
-        onCreateNew={handleOpenCreate}
-        currencySymbol={currencySymbol}
-      />
+      {viewMode === 'table' ? (
+        <TransactionsTable
+          transactions={filteredTransactions}
+          categories={categories}
+          isLoading={isLoading}
+          onEdit={handleOpenEdit}
+          onDelete={handleOpenDelete}
+          onCreateNew={handleOpenCreate}
+          currencySymbol={currencySymbol}
+        />
+      ) : isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#10B981] border-t-transparent" />
+        </div>
+      ) : filteredTransactions.length === 0 ? (
+        <Card className="border-[#2E2E2E] bg-[#1E1E1E]/50">
+          <CardContent className="flex flex-col items-center justify-center py-14 text-center">
+            <div className="p-3 rounded-2xl bg-[#10B981]/10 text-[#10B981] mb-3">
+              <ArrowLeftRight className="h-8 w-8" />
+            </div>
+            <h3 className="text-sm font-semibold text-white">
+              {hasActiveFilters
+                ? 'No se encontraron movimientos con los filtros seleccionados'
+                : 'No tienes transacciones registradas'}
+            </h3>
+            <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-4">
+              {hasActiveFilters
+                ? 'Prueba ajustando los filtros de búsqueda, categoría o fecha.'
+                : 'Comienza a registrar tus ingresos y gastos para ver estadísticas detalladas.'}
+            </p>
+            <Button
+              onClick={handleOpenCreate}
+              className="bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold cursor-pointer"
+            >
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              <span>Registrar Transacción</span>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredTransactions.map((tx) => (
+            <TransactionCard
+              key={tx.id}
+              transaction={tx}
+              category={categories.find((c) => c.id === tx.category_id)}
+              currencySymbol={currencySymbol}
+              onEdit={handleOpenEdit}
+              onDelete={handleOpenDelete}
+            />
+          ))}
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           5. MODALS (CREATE/EDIT & DELETE)

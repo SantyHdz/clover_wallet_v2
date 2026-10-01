@@ -72,24 +72,24 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-[#2E2E2E] bg-[#121212]/90 px-4 sm:px-6 backdrop-blur-md">
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-[#2E2E2E] bg-[#121212]/90 px-3 sm:px-6 backdrop-blur-md">
         {/* ─────────────────────────────────────────────────────────────
             1. LEFT: MOBILE MENU & BREADCRUMBS (DESKTOP)
         ───────────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           {/* Mobile Hamburger Button */}
           <Button
             variant="ghost"
             size="icon"
             onClick={onOpenMobileDrawer}
-            className="md:hidden h-9 w-9 text-muted-foreground hover:bg-[#1E1E1E] hover:text-white"
+            className="md:hidden h-9 w-9 text-muted-foreground hover:bg-[#1E1E1E] hover:text-white shrink-0"
             aria-label="Abrir menú"
           >
             <Menu className="h-5 w-5" />
           </Button>
 
           {/* Mobile Brand */}
-          <Link href="/dashboard" className="flex md:hidden items-center gap-2">
+          <Link href="/dashboard" className="flex md:hidden items-center gap-2 shrink-0">
             <Image
               src="/logo.png"
               alt="Clover Logo"
@@ -158,7 +158,7 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
         {/* ─────────────────────────────────────────────────────────────
             3. RIGHT: SEARCH (MOBILE ICON), CURRENCY & USER DROPDOWN
         ───────────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           {/* Mobile Search Button */}
           <Button
             variant="ghost"
@@ -173,7 +173,7 @@ export function Header({ onOpenMobileDrawer }: HeaderProps) {
           {user?.currency && (
             <Badge
               variant="outline"
-              className="border-[#2E2E2E] bg-[#1E1E1E] px-2.5 py-1 text-xs font-medium text-[#10B981] gap-1.5"
+              className="hidden sm:inline-flex border-[#2E2E2E] bg-[#1E1E1E] px-2.5 py-1 text-xs font-medium text-[#10B981] gap-1.5"
             >
               <Coins className="h-3.5 w-3.5" />
               <span>{user.currency.toUpperCase()}</span>

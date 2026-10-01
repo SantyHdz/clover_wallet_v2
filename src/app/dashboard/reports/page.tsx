@@ -74,7 +74,7 @@ import {
 import { useTransactions } from '@/hooks/use-transactions';
 import { ExportReportDialog } from '@/components/reports/export-report-dialog';
 import { CategoryIcon } from '@/lib/category-icons';
-import { cn, formatAmount } from '@/lib/utils';
+import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 const MONTH_NAMES = [
   'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
@@ -269,7 +269,13 @@ export default function ReportsPage() {
             {isLoadingSummary ? (
               <Skeleton className="h-8 w-28 bg-[#27272A]" />
             ) : (
-              <div className="text-2xl font-extrabold text-[#22C55E]">
+              <div
+                className={cn(
+                  'font-extrabold text-[#22C55E] truncate',
+                  getAmountFontSize(`+${currencySymbol}${formatAmount(totalIncome)}`, '2xl')
+                )}
+                title={`+${currencySymbol}${formatAmount(totalIncome)}`}
+              >
                 +{currencySymbol}{formatAmount(totalIncome)}
               </div>
             )}
@@ -294,7 +300,13 @@ export default function ReportsPage() {
             {isLoadingSummary ? (
               <Skeleton className="h-8 w-28 bg-[#27272A]" />
             ) : (
-              <div className="text-2xl font-extrabold text-[#EF4444]">
+              <div
+                className={cn(
+                  'font-extrabold text-[#EF4444] truncate',
+                  getAmountFontSize(`-${currencySymbol}${formatAmount(totalExpense)}`, '2xl')
+                )}
+                title={`-${currencySymbol}${formatAmount(totalExpense)}`}
+              >
                 -{currencySymbol}{formatAmount(totalExpense)}
               </div>
             )}
@@ -321,9 +333,11 @@ export default function ReportsPage() {
             ) : (
               <div
                 className={cn(
-                  'text-2xl font-extrabold',
-                  balance >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'
+                  'font-extrabold truncate',
+                  balance >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]',
+                  getAmountFontSize(`${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}`, '2xl')
                 )}
+                title={`${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}`}
               >
                 {balance >= 0 ? '+' : ''}{currencySymbol}{formatAmount(balance)}
               </div>

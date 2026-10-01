@@ -47,7 +47,7 @@ import { useReportsSummary } from '@/hooks/use-reports';
 import { useTransactions } from '@/hooks/use-transactions';
 import { useCategories } from '@/hooks/use-categories';
 import { CategoryIcon } from '@/lib/category-icons';
-import { cn, formatAmount } from '@/lib/utils';
+import { cn, formatAmount, getAmountFontSize } from '@/lib/utils';
 
 export default function DashboardOverviewPage() {
   const { user } = useAuth();
@@ -168,7 +168,13 @@ export default function DashboardOverviewPage() {
             {isLoadingSummary ? (
               <Skeleton className="h-8 w-32 bg-[#27272A]" />
             ) : (
-              <div className="text-2xl sm:text-3xl font-extrabold text-[#22C55E]">
+              <div
+                className={cn(
+                  'font-extrabold text-[#22C55E] truncate',
+                  getAmountFontSize(`+${currencySymbol}${formatAmount(totalIncome)}`, '3xl')
+                )}
+                title={`+${currencySymbol}${formatAmount(totalIncome)}`}
+              >
                 +{currencySymbol}{formatAmount(totalIncome)}
               </div>
             )}
@@ -197,7 +203,13 @@ export default function DashboardOverviewPage() {
             {isLoadingSummary ? (
               <Skeleton className="h-8 w-32 bg-[#27272A]" />
             ) : (
-              <div className="text-2xl sm:text-3xl font-extrabold text-[#EF4444]">
+              <div
+                className={cn(
+                  'font-extrabold text-[#EF4444] truncate',
+                  getAmountFontSize(`-${currencySymbol}${formatAmount(totalExpense)}`, '3xl')
+                )}
+                title={`-${currencySymbol}${formatAmount(totalExpense)}`}
+              >
                 -{currencySymbol}{formatAmount(totalExpense)}
               </div>
             )}
@@ -226,7 +238,13 @@ export default function DashboardOverviewPage() {
             {isLoadingSummary ? (
               <Skeleton className="h-8 w-32 bg-[#27272A]" />
             ) : (
-              <div className="text-2xl sm:text-3xl font-extrabold text-white">
+              <div
+                className={cn(
+                  'font-extrabold text-white truncate',
+                  getAmountFontSize(`${currencySymbol}${formatAmount(totalDebtPending)}`, '3xl')
+                )}
+                title={`${currencySymbol}${formatAmount(totalDebtPending)}`}
+              >
                 {currencySymbol}{formatAmount(totalDebtPending)}
               </div>
             )}
@@ -258,7 +276,13 @@ export default function DashboardOverviewPage() {
             {isLoadingSummary ? (
               <Skeleton className="h-8 w-32 bg-[#27272A]" />
             ) : (
-              <div className="text-2xl sm:text-3xl font-extrabold text-white">
+              <div
+                className={cn(
+                  'font-extrabold text-white truncate',
+                  getAmountFontSize(`${currencySymbol}${formatAmount(totalLoanPending)}`, '3xl')
+                )}
+                title={`${currencySymbol}${formatAmount(totalLoanPending)}`}
+              >
                 {currencySymbol}{formatAmount(totalLoanPending)}
               </div>
             )}
@@ -335,9 +359,11 @@ export default function DashboardOverviewPage() {
                     ) : (
                       <div
                         className={cn(
-                          'text-3xl sm:text-4xl font-black mt-1',
-                          balance >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'
+                          'font-black mt-1 truncate',
+                          balance >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]',
+                          getAmountFontSize(`${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}`, '3xl')
                         )}
+                        title={`${balance >= 0 ? '+' : ''}${currencySymbol}${formatAmount(balance)}`}
                       >
                         {balance >= 0 ? '+' : ''}{currencySymbol}{formatAmount(balance)}
                       </div>

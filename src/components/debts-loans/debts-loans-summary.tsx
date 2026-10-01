@@ -2,17 +2,15 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress';
 import {
-  TrendingDown,
-  TrendingUp,
   CreditCard,
   Banknote,
-  PiggyBank,
   CheckCircle2,
   Clock,
+  Wallet,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { cn, getAmountFontSize } from '@/lib/utils';
 
 interface DebtsLoansSummaryProps {
   type: 'debts' | 'loans';
@@ -30,7 +28,7 @@ export function DebtsLoansSummary({
   count,
 }: DebtsLoansSummaryProps) {
   const { user } = useAuth();
-  const currencySymbol = user?.currency === 'COP' ? 'COL$' : user?.currency === 'EUR' ? '€' : '$';
+  const currencySymbol = user?.currency === 'EUR' ? '€' : '$';
 
   const formatMoney = (val: number) => {
     return `${currencySymbol}${Number(val || 0).toLocaleString('en-US', {
@@ -45,105 +43,131 @@ export function DebtsLoansSummary({
   const isDebts = type === 'debts';
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {/* Tarjeta 1: Total General */}
-      <Card className="border-[#2E2E2E] bg-[#1E1E1E]/80 backdrop-blur-sm relative overflow-hidden">
-        <div
-          className={`absolute top-0 left-0 right-0 h-1 ${
-            isDebts ? 'bg-[#F97316]' : 'bg-[#3B82F6]'
-          }`}
-        />
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+      <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm hover:border-[#3E3E3E] transition-colors">
+        <CardContent className="p-0 flex items-center justify-between">
+          <div className="min-w-0 flex-1 pr-1">
+            <span className="text-[11px] text-muted-foreground font-medium">
               {isDebts ? 'Total Deudas' : 'Total Préstamos'}
             </span>
             <div
-              className={`p-2 rounded-lg ${
-                isDebts ? 'bg-[#F97316]/10 text-[#F97316]' : 'bg-[#3B82F6]/10 text-[#3B82F6]'
-              }`}
-            >
-              {isDebts ? (
-                <CreditCard className="h-4 w-4" />
-              ) : (
-                <Banknote className="h-4 w-4" />
+              className={cn(
+                'font-bold text-white mt-0.5 truncate',
+                getAmountFontSize(formatMoney(totalAmount), 'xl')
               )}
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-white tracking-tight">
+              title={formatMoney(totalAmount)}
+            >
               {formatMoney(totalAmount)}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
+            </div>
+            <span className="text-[10px] text-muted-foreground mt-0.5 block truncate">
               {count} {count === 1 ? (isDebts ? 'deuda registrada' : 'préstamo registrado') : (isDebts ? 'deudas registradas' : 'préstamos registrados')}
-            </p>
+            </span>
+          </div>
+          <div
+            className={cn(
+              'h-8 w-8 rounded-lg flex items-center justify-center border shrink-0',
+              isDebts
+                ? 'bg-[#F97316]/10 border-[#F97316]/20 text-[#F97316]'
+                : 'bg-[#3B82F6]/10 border-[#3B82F6]/20 text-[#3B82F6]'
+            )}
+          >
+            {isDebts ? <CreditCard className="h-4 w-4" /> : <Banknote className="h-4 w-4" />}
           </div>
         </CardContent>
       </Card>
 
       {/* Tarjeta 2: Monto Pagado / Recuperado */}
-      <Card className="border-[#2E2E2E] bg-[#1E1E1E]/80 backdrop-blur-sm relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-[#10B981]" />
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+      <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm hover:border-[#10B981]/40 transition-colors">
+        <CardContent className="p-0 flex items-center justify-between">
+          <div className="min-w-0 flex-1 pr-2">
+            <span className="text-[11px] text-muted-foreground font-medium">
               {isDebts ? 'Total Pagado' : 'Total Recuperado'}
             </span>
-            <div className="p-2 rounded-lg bg-[#10B981]/10 text-[#10B981]">
-              <CheckCircle2 className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-[#10B981] tracking-tight">
+            <div
+              className={cn(
+                'font-bold text-[#10B981] mt-0.5 truncate',
+                getAmountFontSize(formatMoney(completedAmount), 'xl')
+              )}
+              title={formatMoney(completedAmount)}
+            >
               {formatMoney(completedAmount)}
-            </h3>
-            <div className="mt-2 space-y-1.5">
-              <div className="flex justify-between items-center text-[11px]">
-                <span className="text-muted-foreground">Progreso</span>
-                <span className="font-semibold text-emerald-400">{percentage}%</span>
-              </div>
-              <div className="h-1.5 w-full bg-[#27272A] rounded-full overflow-hidden">
+            </div>
+            <div className="mt-1 flex items-center gap-1.5">
+              <div className="h-1.5 flex-1 bg-[#27272A] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#10B981] transition-all duration-500 rounded-full"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
+              <span className="text-[10px] font-semibold text-[#10B981]">{percentage}%</span>
             </div>
+          </div>
+          <div className="h-8 w-8 rounded-lg bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] shrink-0">
+            <CheckCircle2 className="h-4 w-4" />
           </div>
         </CardContent>
       </Card>
 
       {/* Tarjeta 3: Saldo Pendiente */}
-      <Card className="border-[#2E2E2E] bg-[#1E1E1E]/80 backdrop-blur-sm relative overflow-hidden">
-        <div
-          className={`absolute top-0 left-0 right-0 h-1 ${
-            isDebts ? 'bg-amber-500' : 'bg-sky-500'
-          }`}
-        />
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+      <Card
+        className={cn(
+          'border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm transition-colors',
+          isDebts ? 'hover:border-[#F97316]/40' : 'hover:border-[#3B82F6]/40'
+        )}
+      >
+        <CardContent className="p-0 flex items-center justify-between">
+          <div className="min-w-0 flex-1 pr-1">
+            <span className="text-[11px] text-muted-foreground font-medium">
               {isDebts ? 'Saldo por Pagar' : 'Saldo por Cobrar'}
             </span>
             <div
-              className={`p-2 rounded-lg ${
-                isDebts ? 'bg-amber-500/10 text-amber-400' : 'bg-sky-500/10 text-sky-400'
-              }`}
-            >
-              <Clock className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <h3
-              className={`text-2xl font-bold tracking-tight ${
-                pendingAmount > 0 ? (isDebts ? 'text-[#F97316]' : 'text-[#3B82F6]') : 'text-white'
-              }`}
+              className={cn(
+                'font-bold mt-0.5 truncate',
+                pendingAmount > 0
+                  ? isDebts
+                    ? 'text-[#F97316]'
+                    : 'text-[#3B82F6]'
+                  : 'text-white',
+                getAmountFontSize(formatMoney(pendingAmount), 'xl')
+              )}
+              title={formatMoney(pendingAmount)}
             >
               {formatMoney(pendingAmount)}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
+            </div>
+            <span className="text-[10px] text-muted-foreground mt-0.5 block truncate">
               {pendingAmount === 0 ? '¡Al día! Todo saldado' : 'Pendiente de liquidación'}
-            </p>
+            </span>
+          </div>
+          <div
+            className={cn(
+              'h-8 w-8 rounded-lg border flex items-center justify-center shrink-0',
+              isDebts
+                ? 'bg-[#F97316]/10 border-[#F97316]/20 text-[#F97316]'
+                : 'bg-[#3B82F6]/10 border-[#3B82F6]/20 text-[#3B82F6]'
+            )}
+          >
+            <Clock className="h-4 w-4" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tarjeta 4: Resumen de Obligaciones */}
+      <Card className="border-[#2E2E2E] bg-[#1E1E1E] p-3.5 shadow-sm">
+        <CardContent className="p-0 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] text-muted-foreground font-medium">
+              {isDebts ? 'Compromisos' : 'Prestamistas'}
+            </span>
+            <div className="text-lg sm:text-xl font-bold text-white mt-0.5">
+              {count}
+            </div>
+            <span className="text-[10px] text-muted-foreground mt-0.5 block">
+              {isDebts ? 'Acreedores activos' : 'Deudores activos'}
+            </span>
+          </div>
+          <div className="h-8 w-8 rounded-lg bg-[#121212] border border-[#2E2E2E] flex items-center justify-center text-muted-foreground">
+            <Wallet className="h-4 w-4" />
           </div>
         </CardContent>
       </Card>

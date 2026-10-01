@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, X, Tags, Calendar, CalendarRange, Filter } from 'lucide-react';
+import { Search, X, Tags, Calendar, CalendarRange, Filter, LayoutGrid, List } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,6 +32,8 @@ interface TransactionFiltersProps {
   categories: Category[];
   onResetFilters: () => void;
   hasActiveFilters: boolean;
+  viewMode?: 'grid' | 'table';
+  onViewModeChange?: (mode: 'grid' | 'table') => void;
 }
 
 const MONTHS = [
@@ -72,6 +74,8 @@ export function TransactionFilters({
   categories,
   onResetFilters,
   hasActiveFilters,
+  viewMode = 'table',
+  onViewModeChange,
 }: TransactionFiltersProps) {
   const activeCategory = categories.find((c) => c.id === selectedCategoryId);
   const activeMonthLabel =
@@ -82,7 +86,7 @@ export function TransactionFilters({
   return (
     <div className="space-y-3.5 rounded-2xl border border-[#2E2E2E] bg-[#1E1E1E] p-4 shadow-xl">
       {/* ─────────────────────────────────────────────────────────────
-          ROW 1: TYPE TABS & SEARCH INPUT
+          ROW 1: TYPE TABS, SEARCH INPUT & VIEW TOGGLE
       ───────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Type Tabs */}
@@ -90,41 +94,76 @@ export function TransactionFilters({
           <TabsList className="bg-[#121212] border border-[#2E2E2E] p-1 rounded-xl">
             <TabsTrigger
               value="all"
-              className="rounded-lg text-xs data-[state=active]:bg-[#10B981] data-[state=active]:text-white font-medium"
+              className="rounded-lg text-xs data-[state=active]:bg-[#10B981] data-[state=active]:text-white font-medium cursor-pointer"
             >
               Todos los movimientos
             </TabsTrigger>
             <TabsTrigger
               value="expense"
-              className="rounded-lg text-xs data-[state=active]:bg-[#EF4444] data-[state=active]:text-white font-medium"
+              className="rounded-lg text-xs data-[state=active]:bg-[#EF4444] data-[state=active]:text-white font-medium cursor-pointer"
             >
               Solo Gastos
             </TabsTrigger>
             <TabsTrigger
               value="income"
-              className="rounded-lg text-xs data-[state=active]:bg-[#22C55E] data-[state=active]:text-white font-medium"
+              className="rounded-lg text-xs data-[state=active]:bg-[#22C55E] data-[state=active]:text-white font-medium cursor-pointer"
             >
               Solo Ingresos
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
-        {/* Search Input */}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar por descripción o notas..."
-            className="h-10 w-full rounded-xl border-[#2E2E2E] bg-[#121212] pl-9 pr-8 text-xs text-white placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-[#10B981]"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => onSearchChange('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+        {/* Search & View Mode Switcher */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Search Input */}
+          <div className="relative flex-1 sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Buscar por descripción o notas..."
+              className="h-10 w-full rounded-xl border-[#2E2E2E] bg-[#121212] pl-9 pr-8 text-xs text-white placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-[#10B981]"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Alternador Grid / Table */}
+          {onViewModeChange && (
+            <div className="flex items-center p-0.5 rounded-xl border border-[#2E2E2E] bg-[#121212] shrink-0 h-10">
+              <button
+                type="button"
+                onClick={() => onViewModeChange('grid')}
+                className={cn(
+                  'p-2 rounded-lg text-muted-foreground transition-colors cursor-pointer',
+                  viewMode === 'grid'
+                    ? 'bg-[#27272A] text-white shadow-sm'
+                    : 'hover:text-white'
+                )}
+                title="Vista en tarjetas"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onViewModeChange('table')}
+                className={cn(
+                  'p-2 rounded-lg text-muted-foreground transition-colors cursor-pointer',
+                  viewMode === 'table'
+                    ? 'bg-[#27272A] text-white shadow-sm'
+                    : 'hover:text-white'
+                )}
+                title="Vista en tabla"
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
           )}
         </div>
       </div>

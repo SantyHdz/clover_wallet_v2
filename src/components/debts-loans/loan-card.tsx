@@ -11,15 +11,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  User,
   Calendar,
   Percent,
   MoreVertical,
   Edit2,
   Trash2,
   TrendingUp,
-  History,
   AlertTriangle,
+  Banknote,
 } from 'lucide-react';
 import { Loan } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
@@ -42,7 +41,7 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
   const percentage =
     totalAmount > 0 ? Math.min(100, Math.round((recoveredAmount / totalAmount) * 100)) : 0;
 
-  const currencySymbol = user?.currency === 'COP' ? 'COL$' : user?.currency === 'EUR' ? '€' : '$';
+  const currencySymbol = user?.currency === 'EUR' ? '€' : '$';
 
   const formatMoney = (val: number) => {
     return `${currencySymbol}${Number(val || 0).toLocaleString('en-US', {
@@ -60,7 +59,7 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
     <Card
       className={cn(
         'border-[#2E2E2E] bg-[#1E1E1E] transition-all duration-200 hover:border-[#3E3E3E] hover:shadow-lg relative overflow-hidden group',
-        isOverdue && 'border-rose-500/40 bg-[#1E1E1E]'
+        isOverdue && 'border-rose-500/30'
       )}
     >
       {/* Indicador de barra lateral de estado */}
@@ -75,26 +74,33 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
         )}
       />
 
-      <CardContent className="p-4 sm:p-5 pl-5 sm:pl-6 space-y-4">
-        {/* Encabezado: Nombre del Deudor y Menú */}
+      <CardContent className="p-4 sm:p-5 pl-5 sm:pl-6 space-y-3.5">
+        {/* Encabezado: Nombre del Deudor, Badge y Menú */}
         <div className="flex items-start justify-between gap-2">
-          <div className="space-y-1">
+          <div className="space-y-1 min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-[#3B82F6] transition-colors">
+              <div className="h-6 w-6 rounded-md bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] shrink-0">
+                <Banknote className="h-3.5 w-3.5" />
+              </div>
+              <h3 className="font-bold text-sm text-white group-hover:text-[#3B82F6] transition-colors truncate">
                 {loan.debtor_name}
               </h3>
               <LoanStatusBadge status={isOverdue ? 'overdue' : loan.status} />
             </div>
-            {loan.description && (
+            {loan.description ? (
               <p className="text-xs text-muted-foreground line-clamp-1">
                 {loan.description}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground/50 italic">
+                Sin descripción
               </p>
             )}
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="h-8 w-8 rounded-lg p-0 text-muted-foreground hover:bg-[#27272A] hover:text-white flex items-center justify-center outline-none"
+              className="h-7 w-7 rounded-lg p-0 text-muted-foreground hover:bg-[#27272A] hover:text-white flex items-center justify-center outline-none shrink-0"
               aria-label="Opciones de préstamo"
             >
               <MoreVertical className="h-4 w-4" />
@@ -127,32 +133,32 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
         </div>
 
         {/* Métricas Principales: Total vs Pendiente */}
-        <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-[#121212] border border-[#2E2E2E]">
-          <div>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+        <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[#121212] border border-[#2E2E2E]">
+          <div className="min-w-0">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider block font-medium">
               Total Prestado
             </span>
-            <span className="text-sm sm:text-base font-bold text-white">
+            <span className="text-sm sm:text-base font-bold text-white truncate block">
               {formatMoney(totalAmount)}
             </span>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] text-[#3B82F6] uppercase tracking-wider block">
+          <div className="text-right min-w-0">
+            <span className="text-[10px] text-[#3B82F6] uppercase tracking-wider block font-medium">
               Por Cobrar
             </span>
-            <span className="text-sm sm:text-base font-bold text-[#3B82F6]">
+            <span className="text-sm sm:text-base font-bold text-[#3B82F6] truncate block">
               {formatMoney(remainingAmount)}
             </span>
           </div>
         </div>
 
         {/* Barra de Progreso de Recuperación */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-[11px] text-muted-foreground">
+        <div className="space-y-1">
+          <div className="flex justify-between items-center text-[11px] text-muted-foreground">
             <span>Recuperado: {formatMoney(recoveredAmount)}</span>
             <span className="font-semibold text-emerald-400">{percentage}%</span>
           </div>
-          <div className="h-2 w-full bg-[#27272A] rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-[#27272A] rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-[#3B82F6] to-[#10B981] transition-all duration-500 rounded-full"
               style={{ width: `${percentage}%` }}
@@ -161,12 +167,12 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
         </div>
 
         {/* Metadatos (Tasa & Fecha Límite) y Botón de Acción Rápida */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#2E2E2E] gap-2 flex-wrap">
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
+        <div className="flex items-center justify-between pt-2.5 border-t border-[#2E2E2E] gap-2 flex-wrap">
+          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground flex-wrap">
             {loan.interest_rate !== null && loan.interest_rate !== undefined && (
               <div className="flex items-center gap-1">
                 <Percent className="h-3 w-3 text-muted-foreground" />
-                <span>{loan.interest_rate}% rendimiento</span>
+                <span>{loan.interest_rate}%</span>
               </div>
             )}
             {loan.due_date && (
@@ -189,9 +195,9 @@ export function LoanCard({ loan, onPay, onEdit, onDelete }: LoanCardProps) {
           <Button
             size="sm"
             onClick={() => onPay(loan)}
-            className="h-8 px-3 rounded-lg bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/30 hover:bg-[#3B82F6] hover:text-white text-xs font-semibold gap-1.5 cursor-pointer ml-auto"
+            className="h-7 px-2.5 rounded-lg bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/30 hover:bg-[#3B82F6] hover:text-white text-xs font-semibold gap-1 cursor-pointer ml-auto"
           >
-            <TrendingUp className="h-3.5 w-3.5" />
+            <TrendingUp className="h-3 w-3" />
             <span>Cobrar</span>
           </Button>
         </div>
