@@ -176,7 +176,7 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`+${currencySymbol}${formatAmount(totalIncome)}`}
               >
-                <AnimatedAmount
+                <AnimatedAmount animateOnMount
                   value={totalIncome}
                   prefix={`+${currencySymbol}`}
                 />
@@ -214,7 +214,7 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`-${currencySymbol}${formatAmount(totalExpense)}`}
               >
-                <AnimatedAmount
+                <AnimatedAmount animateOnMount
                   value={totalExpense}
                   prefix={`-${currencySymbol}`}
                 />
@@ -252,7 +252,7 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`${currencySymbol}${formatAmount(totalDebtPending)}`}
               >
-                <AnimatedAmount
+                <AnimatedAmount animateOnMount
                   value={totalDebtPending}
                   prefix={currencySymbol}
                 />
@@ -293,7 +293,7 @@ export default function DashboardOverviewPage() {
                 )}
                 title={`${currencySymbol}${formatAmount(totalLoanPending)}`}
               >
-                <AnimatedAmount
+                <AnimatedAmount animateOnMount
                   value={totalLoanPending}
                   prefix={currencySymbol}
                 />
