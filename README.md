@@ -36,7 +36,11 @@ Open http://localhost:3000.
 
 ## Screenshots
 
-[Add 2 or 3 screenshots here: dashboard, debts, reports]
+<img width="1901" height="973" alt="image" src="https://github.com/user-attachments/assets/ba7cdb51-1bcb-41dd-a30a-3bd7e47bb683" />
+<img width="1900" height="977" alt="image" src="https://github.com/user-attachments/assets/b1b8da4c-aa1f-4890-b418-e920c993bba8" />
+<img width="1896" height="972" alt="image" src="https://github.com/user-attachments/assets/95d7012e-67a4-43e9-bcc1-8cab33833351" />
+
+
 
 ## Author
 
