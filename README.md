@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clover Wallet
 
-## Getting Started
+Personal finance web app to track income, expenses, debts and loans in one place. This is v2: a refactor of the first version, rebuilt with better practices.
 
-First, run the development server:
+**Live demo:** https://clover-wallet-amber.vercel.app
+**Backend repo:** https://github.com/SantyHdz/Clover_Wallet_BACKEND
+
+## Features
+
+- Record and categorize income and expenses, including recurring ones
+- Filter by category, month and year to spot unnecessary spending
+- Debts and loans, kept separate: money you owe and money you lent
+- Partial repayments with progress bars
+- Reports: breakdown by category, monthly comparison, annual history, net balance and savings
+- Dashboard with totals, pending debts, receivables and estimated savings
+- Dark mode
+
+## Tech stack
+
+- Next.js and TypeScript
+- [Confirm and edit: Tailwind CSS, shadcn/ui]
+- Backend: Python API on Render (see the backend repo)
+- Frontend deployed on Vercel
+
+## Run locally
 
 ```bash
+git clone https://github.com/SantyHdz/clover_wallet_v2.git
+cd clover_wallet_v2
+npm install
+# create .env.local with the backend URL: [add the variable name you use]
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Screenshots
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+[Add 2 or 3 screenshots here: dashboard, debts, reports]
 
-## Learn More
+## Author
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Santiago Hernandez – full-stack developer. [GitHub](https://github.com/SantyHdz)
