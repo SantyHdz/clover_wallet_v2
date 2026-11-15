@@ -18,7 +18,7 @@ Personal finance web app to track income, expenses, debts and loans in one place
 ## Tech stack
 
 - Next.js and TypeScript
-- [Confirm and edit: Tailwind CSS, shadcn/ui]
+- Tailwind CSS, shadcn/ui
 - Backend: Python API on Render (see the backend repo)
 - Frontend deployed on Vercel
 
